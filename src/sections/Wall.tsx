@@ -29,6 +29,9 @@ export function Wall() {
           <span className="bc-badge">Comunidad</span>
           <h2>El muro de Blockchain Conf</h2>
           <p>Credenciales de quienes ya confirmaron que serán parte.</p>
+          <span className="bc-wall__count">
+            {entries.length} {entries.length === 1 ? "credencial publicada" : "credenciales publicadas"}
+          </span>
         </div>
 
         <div className="bc-wall__grid" data-reveal>
