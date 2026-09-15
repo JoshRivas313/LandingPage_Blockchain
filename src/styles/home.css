@@ -1091,6 +1091,31 @@
   }
 }
 
+.bc-wall__more {
+  display: block;
+  margin: 32px auto 0;
+  padding: 12px 28px;
+  background: var(--c-white);
+  border: 1px solid var(--c-violet);
+  border-radius: var(--r-pill);
+  color: var(--c-violet);
+  font-weight: 700;
+  font-size: 14px;
+  font-family: inherit;
+  cursor: pointer;
+  transition:
+    transform var(--t-micro) var(--ease),
+    background-color var(--t-micro) var(--ease);
+}
+
+.bc-wall__more:hover {
+  background: var(--c-mist);
+}
+
+.bc-wall__more:active {
+  transform: scale(0.97);
+}
+
 
 
 

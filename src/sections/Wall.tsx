@@ -1,9 +1,13 @@
 import { useCallback, useEffect, useState } from "react"
 import { WALL_UPDATED_EVENT, fetchWall, type WallEntry } from "@/utils/wallApi"
 
+/** Cuantas tarjetas se muestran antes de necesitar "Ver mas". */
+const PAGE_SIZE = 8
+
 export function Wall() {
   const [entries, setEntries] = useState<WallEntry[]>([])
   const [loaded, setLoaded] = useState(false)
+  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE)
 
   const load = useCallback(() => {
     fetchWall()
@@ -35,13 +39,23 @@ export function Wall() {
         </div>
 
         <div className="bc-wall__grid" data-reveal>
-          {entries.map((entry) => (
+          {entries.slice(0, visibleCount).map((entry) => (
             <figure className="bc-wall__item" key={entry.id}>
               {entry.credencialUrl && <img src={entry.credencialUrl} alt={entry.nombre} loading="lazy" />}
               <figcaption>{entry.nombre}</figcaption>
             </figure>
           ))}
         </div>
+
+        {visibleCount < entries.length && (
+          <button
+            className="bc-wall__more"
+            type="button"
+            onClick={() => setVisibleCount((n) => n + PAGE_SIZE)}
+          >
+            Ver más
+          </button>
+        )}
       </div>
     </section>
   )

@@ -23,13 +23,13 @@ export const SECTION_LINKS = [
   { label: "Comunidades", href: "#comunidades" },
   { label: "Speakers", href: "#speakers" },
   { label: "Cronograma", href: "#cronograma" },
+  { label: "Muro", href: "#muro" },
 ] as const
 
 export const FOOTER_EXPLORE = [
   { label: "Evento", href: "#evento" },
   ...SECTION_LINKS,
   { label: "Credencial", href: "#credencial" },
-  { label: "Muro", href: "#muro" },
 ] as const
 
 /** Datos fijos de cobro por Yape para el badge fisico. */
