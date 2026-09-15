@@ -22,7 +22,7 @@ export const SCHEDULE: Slot[] = [
     time: "11:10 am – 11:40 am",
     title: "Construyendo comunidad, creando oportunidades",
     speaker: "Gianella Xiomara Coronel | Marcelo Vizcarra Tarrillo",
-    community: "Dev3pack Perú (Solana)",
+    community: "Dev3pack Perú",
   },
   {
     time: "11:40 am – 12:10 pm",
