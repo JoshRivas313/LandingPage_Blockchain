@@ -1,0 +1,10 @@
+# Material de origen: no participa en el build ni se sirve.
+# Las rutas van ancladas con "/" inicial: sin ella, "assets/" excluiria tambien
+# src/assets/ y el build se quedaria sin las imagenes.
+/assets/
+/uploads/
+/screenshots/
+/scripts/
+/*.dc.html
+/support.js
+/.thumbnail

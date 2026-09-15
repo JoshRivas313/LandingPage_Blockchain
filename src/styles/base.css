@@ -1,0 +1,295 @@
+@import "./tokens.css";
+@import "./fonts.css";
+
+/* ---------- Reset minimo ---------- */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--c-white);
+  color: var(--c-navy);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  color: var(--c-blue);
+  text-decoration: none;
+}
+
+a:hover {
+  color: var(--c-blue-dark);
+}
+
+:focus-visible {
+  outline: 2px solid var(--c-blue);
+  outline-offset: 2px;
+}
+
+img {
+  max-width: 100%;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--font-display);
+  margin: 0;
+}
+
+/* ---------- Animaciones compartidas ----------
+   Solo transform/opacity: el compositor las resuelve sin repintar. */
+
+@keyframes bc-float {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-16px) rotate(4deg);
+  }
+}
+
+@keyframes bc-marquee {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ---------- Piezas compartidas por las 3 paginas ---------- */
+
+.bc-shell {
+  min-height: 100vh;
+  background: var(--c-white);
+}
+
+.bc-nav {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: rgb(255 255 255 / 85%);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid var(--c-line);
+}
+
+.bc-nav__inner {
+  max-width: var(--maxw);
+  margin: 0 auto;
+  padding: 0 var(--gutter);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  min-height: 76px;
+  gap: 12px;
+}
+
+.bc-nav__logo {
+  height: 51px;
+  width: 190px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+.bc-nav__right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+.bc-nav__links {
+  display: flex;
+  gap: clamp(16px, 3vw, 32px);
+  align-items: center;
+}
+
+.bc-nav__link {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--c-muted);
+  white-space: nowrap;
+}
+
+.bc-btn {
+  display: inline-block;
+  padding: 10px 20px;
+  background: var(--c-blue);
+  color: var(--c-white);
+  font-weight: 700;
+  border-radius: var(--r-md);
+  font-size: 14px;
+  box-shadow: var(--sh-btn);
+  white-space: nowrap;
+}
+
+.bc-btn:hover {
+  color: var(--c-white);
+}
+
+.bc-badge {
+  display: inline-flex;
+  padding: 6px 16px;
+  border-radius: var(--r-pill);
+  border: 1px solid rgb(36 101 245 / 20%);
+  background: var(--c-mist);
+  color: var(--c-blue);
+  font-weight: 700;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 16px;
+}
+
+/* Navegacion movil: hasta ahora los enlaces simplemente desaparecian bajo
+   860px y no habia forma de navegar. El <details> nativo evita sumar JS. */
+
+.bc-nav__menu {
+  display: none;
+  position: relative;
+}
+
+.bc-nav__menu-btn {
+  list-style: none;
+  cursor: pointer;
+  width: 42px;
+  height: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--c-line);
+  border-radius: var(--r-md);
+  background: var(--c-white);
+  color: var(--c-navy);
+}
+
+.bc-nav__menu-btn::-webkit-details-marker {
+  display: none;
+}
+
+.bc-nav__menu-panel {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 10px);
+  min-width: 190px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 8px;
+  background: var(--c-white);
+  border: 1px solid var(--c-line);
+  border-radius: var(--r-xl);
+  box-shadow: var(--sh-preview);
+}
+
+.bc-nav__menu-panel a {
+  padding: 10px 12px;
+  border-radius: var(--r-sm);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--c-muted);
+}
+
+.bc-nav__menu-panel a:hover {
+  background: var(--c-mist);
+  color: var(--c-blue);
+}
+
+@media (max-width: 860px) {
+  .bc-nav__links {
+    display: none;
+  }
+  .bc-nav__menu {
+    display: block;
+  }
+  .bc-nav__logo {
+    height: 40px;
+    width: 148px;
+  }
+}
+
+/* ---------- Footer ---------- */
+
+.bc-footer {
+  background: var(--c-mist);
+  border-top: 1px solid var(--c-line);
+  padding: 64px var(--gutter) 32px;
+}
+
+.bc-footer__cols {
+  max-width: var(--maxw);
+  margin: 0 auto 48px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 40px;
+}
+
+.bc-footer__brand {
+  flex: 1 1 260px;
+}
+
+.bc-footer__logo {
+  height: 55px;
+  width: 169px;
+  object-fit: contain;
+  margin-bottom: 16px;
+}
+
+.bc-footer__tagline {
+  color: var(--c-muted);
+  font-size: 14px;
+  max-width: 320px;
+  margin: 0;
+}
+
+.bc-footer__col {
+  flex: 1 1 160px;
+}
+
+.bc-footer__col h4 {
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin: 0 0 16px;
+}
+
+.bc-footer__list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.bc-footer__list a {
+  font-size: 14px;
+  color: var(--c-muted);
+}
+
+.bc-footer__legal {
+  max-width: var(--maxw);
+  margin: 0 auto;
+  border-top: 1px solid var(--c-line);
+  padding-top: 24px;
+  text-align: center;
+  color: var(--c-faint);
+  font-size: 13px;
+}

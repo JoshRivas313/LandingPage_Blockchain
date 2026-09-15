@@ -1,0 +1,53 @@
+/* Tokens extraidos 1:1 de los estilos inline del diseno original.
+   Ningun valor es nuevo: solo se centralizaron los que se repetian. */
+
+:root {
+  /* Identidad */
+  --c-navy: #17164f;
+  --c-blue: #2465f5;
+  --c-blue-dark: #0047d4;
+  --c-violet: #6335f5;
+  --c-cyan: #08d9f5;
+  --c-green: #18ed8a;
+  --c-red: #ef4444;
+  --c-linkedin: #0a66c2;
+
+  /* Superficies y texto */
+  --c-white: #ffffff;
+  --c-mist: #eef2ff;
+  --c-line: #e2e8f0;
+  --c-muted: #64748b;
+  --c-faint: #94a3b8;
+
+  /* Degradados recurrentes */
+  --g-brand: linear-gradient(90deg, var(--c-blue), var(--c-violet));
+  --g-brand-135: linear-gradient(135deg, var(--c-violet), var(--c-blue));
+
+  /* Radios */
+  --r-sm: 8px;
+  --r-md: 10px;
+  --r-lg: 12px;
+  --r-xl: 14px;
+  --r-2xl: 20px;
+  --r-3xl: 22px;
+  --r-4xl: 24px;
+  --r-pill: 999px;
+
+  /* Sombras */
+  --sh-btn: 0 4px 14px rgb(36 101 245 / 25%);
+  --sh-btn-lg: 0 8px 20px rgb(36 101 245 / 25%);
+  --sh-cta: 0 12px 30px rgb(36 101 245 / 30%);
+  --sh-card: 0 12px 28px rgb(36 101 245 / 16%);
+  --sh-preview: 0 20px 40px rgb(0 0 0 / 12%);
+
+  /* Layout */
+  --gutter: clamp(16px, 4vw, 32px);
+  --maxw: 1280px;
+  --section-y: clamp(64px, 8vw, 96px);
+
+  /* Tipografia */
+  --font-sans: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-display: "Manrope", "Inter", system-ui, sans-serif;
+  --fs-h2: clamp(26px, 3.4vw, 36px);
+  --fs-h1-doc: clamp(30px, 4.2vw, 44px);
+}

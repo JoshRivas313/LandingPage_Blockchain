@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+  body { margin: 0; background: #FFFFFF; color: #17164F; font-family: 'Inter', sans-serif; }
+  a { color: #2465F5; text-decoration: none; }
+  a:hover { color: #2465F5; }
+  a:focus, button:focus { outline: 2px solid #2465F5; outline-offset: 2px; }
+  html { scroll-behavior: smooth; }
+  @media (max-width: 900px) { .coc-sidebar { display: none !important; } .coc-mobilenav { display: flex !important; } }
+</style>
+</helmet>
+
+<div style="min-height:100vh; background:#FFFFFF; color:#17164F; font-family:'Inter',sans-serif;">
+  <nav style="position:sticky; top:0; z-index:50; background:rgba(253,254,255,0.9); backdrop-filter:blur(12px); border-bottom:1px solid #e2e8f0;">
+    <div style="max-width:1100px; margin:0 auto; padding:0 clamp(16px,4vw,32px); display:flex; justify-content:space-between; align-items:center; height:72px; gap:12px;">
+      <a href="Blockchain Conf.dc.html" style="display:flex; align-items:center; gap:10px; color:#17164F;">
+        <img src="assets/blockchain-conf-logo.png" alt="Blockchain Conf" style="height:30px; width:auto; object-fit:contain;">
+      </a>
+      <a href="Blockchain Conf.dc.html" style="font-size:14px; font-weight:600; color:#64748b;">← Volver al inicio</a>
+    </div>
+  </nav>
+
+  <div class="coc-mobilenav" style="display:none; position:sticky; top:72px; z-index:40; background:#FFFFFF; border-bottom:1px solid #e2e8f0; overflow-x:auto; padding:12px clamp(16px,4vw,32px); gap:8px;">
+    <a href="#compromiso" style="flex-shrink:0; font-size:13px; font-weight:600; color:#64748b; padding:6px 12px; border-radius:999px; background:#EEF2FF; white-space:nowrap;">Compromiso</a>
+    <a href="#esperados" style="flex-shrink:0; font-size:13px; font-weight:600; color:#64748b; padding:6px 12px; border-radius:999px; background:#EEF2FF; white-space:nowrap;">Esperado</a>
+    <a href="#no-aceptados" style="flex-shrink:0; font-size:13px; font-weight:600; color:#64748b; padding:6px 12px; border-radius:999px; background:#EEF2FF; white-space:nowrap;">No aceptado</a>
+    <a href="#reportar" style="flex-shrink:0; font-size:13px; font-weight:600; color:#64748b; padding:6px 12px; border-radius:999px; background:#EEF2FF; white-space:nowrap;">Reportar</a>
+    <a href="#consecuencias" style="flex-shrink:0; font-size:13px; font-weight:600; color:#64748b; padding:6px 12px; border-radius:999px; background:#EEF2FF; white-space:nowrap;">Consecuencias</a>
+    <a href="#contacto" style="flex-shrink:0; font-size:13px; font-weight:600; color:#64748b; padding:6px 12px; border-radius:999px; background:#EEF2FF; white-space:nowrap;">Contacto</a>
+  </div>
+
+  <main style="max-width:1100px; margin:0 auto; padding:clamp(48px,8vw,80px) clamp(16px,4vw,32px) 120px; display:flex; gap:56px; align-items:flex-start;">
+    <aside class="coc-sidebar" style="flex:0 0 220px; position:sticky; top:96px; display:flex; flex-direction:column; gap:10px;">
+      <span style="font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; color:#94a3b8; margin-bottom:6px;">Contenido</span>
+      <a href="#compromiso" style="font-size:14px; font-weight:600; color:#64748b; padding:4px 0;">Nuestro compromiso</a>
+      <a href="#esperados" style="font-size:14px; font-weight:600; color:#64748b; padding:4px 0;">Comportamientos esperados</a>
+      <a href="#no-aceptados" style="font-size:14px; font-weight:600; color:#64748b; padding:4px 0;">Comportamientos no aceptados</a>
+      <a href="#reportar" style="font-size:14px; font-weight:600; color:#64748b; padding:4px 0;">Cómo reportar</a>
+      <a href="#consecuencias" style="font-size:14px; font-weight:600; color:#64748b; padding:4px 0;">Consecuencias</a>
+      <a href="#contacto" style="font-size:14px; font-weight:600; color:#64748b; padding:4px 0;">Contacto</a>
+    </aside>
+
+    <article style="flex:1 1 0%; min-width:0; max-width:680px;">
+      <div style="display:inline-flex; padding:6px 16px; border-radius:999px; border:1px solid rgba(36,101,245,0.2); background:#EEF2FF; color:#2465F5; font-weight:700; font-size:12px; text-transform:uppercase; letter-spacing:0.08em; margin-bottom:16px;">Comunidad</div>
+      <h1 style="font-family:'Manrope',sans-serif; font-weight:800; font-size:clamp(30px,4.2vw,44px); margin:0 0 16px 0; line-height:1.1;">Código de Conducta</h1>
+      <p style="font-size:16px; color:#64748b; line-height:1.7; margin:0 0 48px 0;">En Developer Student Clubs UTP nos comprometemos a mantener una comunidad segura, inclusiva, respetuosa y colaborativa. Este código describe lo que esperamos de cada participante en Blockchain Conf, y de qué manera actuamos cuando algo sale mal.</p>
+
+      <section id="compromiso" style="margin-bottom:44px;">
+        <h2 style="font-family:'Manrope',sans-serif; font-weight:700; font-size:22px; margin:0 0 14px 0;">Nuestro compromiso</h2>
+        <p style="font-size:15px; color:#17164F; line-height:1.7; margin:0;">Nos comprometemos a ofrecer una experiencia libre de acoso para todos los asistentes, sin importar género, orientación sexual, discapacidad, apariencia física, etnia, religión o nivel de experiencia técnica. Esperamos el mismo compromiso de cada persona que participa en el evento.</p>
+      </section>
+
+      <section id="esperados" style="margin-bottom:44px;">
+        <h2 style="font-family:'Manrope',sans-serif; font-weight:700; font-size:22px; margin:0 0 14px 0;">Comportamientos esperados</h2>
+        <div style="display:flex; flex-direction:column; gap:14px;">
+          <p style="margin:0; font-size:15px; color:#17164F; line-height:1.6;"><strong style="color:#18ED8A; font-size:16px;">✓</strong>&nbsp; <strong>Sé respetuoso y amable:</strong> trata a todos los participantes con cortesía, sin importar su experiencia o identidad.</p>
+          <p style="margin:0; font-size:15px; color:#17164F; line-height:1.6;"><strong style="color:#18ED8A; font-size:16px;">✓</strong>&nbsp; <strong>Promueve un ambiente positivo:</strong> fomenta la colaboración y el aprendizaje.</p>
+          <p style="margin:0; font-size:15px; color:#17164F; line-height:1.6;"><strong style="color:#18ED8A; font-size:16px;">✓</strong>&nbsp; <strong>Comunícate constructivamente:</strong> expresa tus ideas de forma profesional y respeta las opiniones de los demás.</p>
+        </div>
+      </section>
+
+      <section id="no-aceptados" style="margin-bottom:44px;">
+        <h2 style="font-family:'Manrope',sans-serif; font-weight:700; font-size:22px; margin:0 0 14px 0;">Comportamientos no aceptados</h2>
+        <div style="display:flex; flex-direction:column; gap:14px;">
+          <p style="margin:0; font-size:15px; color:#17164F; line-height:1.6;"><strong style="color:#ef4444; font-size:16px;">✗</strong>&nbsp; <strong>Acoso y discriminación:</strong> no se permite ninguna forma de intimidación, acoso o discriminación por género, etnia, religión, habilidad técnica, etc.</p>
+          <p style="margin:0; font-size:15px; color:#17164F; line-height:1.6;"><strong style="color:#ef4444; font-size:16px;">✗</strong>&nbsp; <strong>Lenguaje ofensivo:</strong> evita el discurso de odio, comentarios despectivos y cualquier contenido inapropiado.</p>
+          <p style="margin:0; font-size:15px; color:#17164F; line-height:1.6;"><strong style="color:#ef4444; font-size:16px;">✗</strong>&nbsp; <strong>Interrupción:</strong> la interrupción intencional de las actividades del evento no será tolerada.</p>
+        </div>
+      </section>
+
+      <section id="reportar" style="margin-bottom:44px; background:#EEF2FF; border-radius:20px; padding:28px;">
+        <h2 style="font-family:'Manrope',sans-serif; font-weight:700; font-size:20px; margin:0 0 12px 0; color:#2465F5;">¿Cómo reportar un incidente?</h2>
+        <p style="margin:0; font-size:15px; color:#17164F; line-height:1.7;">Si experimentas o presencias una violación de este código de conducta, contacta de inmediato a un organizador del evento o a un líder de DSC UTP. Puedes hacerlo en persona o a través de nuestros canales oficiales. Tu informe se manejará de forma confidencial y se tomarán las medidas necesarias.</p>
+      </section>
+
+      <section id="consecuencias" style="margin-bottom:44px;">
+        <h2 style="font-family:'Manrope',sans-serif; font-weight:700; font-size:22px; margin:0 0 14px 0;">Consecuencias ante incumplimientos</h2>
+        <p style="margin:0; font-size:15px; color:#17164F; line-height:1.7;">Las consecuencias pueden incluir desde una advertencia hasta la expulsión del evento, dependiendo de la gravedad de la falta.</p>
+      </section>
+
+      <section id="contacto" style="background:#17164F; border-radius:20px; padding:28px;">
+        <h2 style="font-family:'Manrope',sans-serif; font-weight:700; font-size:20px; margin:0 0 10px 0; color:#FFFFFF;">Contacto</h2>
+        <p style="margin:0; font-size:15px; color:#EEF2FF; line-height:1.7;">Escríbenos por nuestros canales oficiales o acércate a cualquier miembro del staff de DSC UTP durante el evento — reconocibles por su acreditación.</p>
+      </section>
+    </article>
+  </main>
+</div>
+
+</x-dc>
+</body>
+</html>
