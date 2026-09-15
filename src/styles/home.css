@@ -1067,6 +1067,11 @@
 .bc-wall__item img {
   display: block;
   width: 100%;
+  /* Sin esto, el atributo HTML height="1402" (puesto para reservar layout
+     antes de que cargue el CSS) gana y fija 1402px de alto literal, ya que
+     aspect-ratio no reemplaza una altura explicita, solo calcula la que
+     falta. */
+  height: auto;
   aspect-ratio: 1122 / 1402;
   object-fit: cover;
 }
