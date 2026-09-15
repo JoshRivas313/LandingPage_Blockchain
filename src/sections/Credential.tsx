@@ -16,9 +16,10 @@ import {
 import {
   canShareFile,
   copyText,
-  isTouchPrimary,
+  copyTextEager,
   openComposer,
   shareFile,
+  supportsFileShare,
   toBadgeFile,
 } from "@/utils/linkedin"
 
@@ -73,6 +74,9 @@ export function Credential() {
    * activación en Safari.
    */
   const badgeRef = useRef<Blob | null>(null)
+
+  /** Si el navegador comparte archivos, el botón abre el menú del sistema. */
+  const [nativeShare] = useState(supportsFileShare)
 
   const toastTimer = useRef<number | undefined>(undefined)
   useEffect(() => () => window.clearTimeout(toastTimer.current), [])
@@ -192,19 +196,27 @@ export function Credential() {
   /**
    * Compartir.
    *
-   * Si el navegador puede compartir archivos —el caso de los móviles— se abre
-   * el menú nativo con la imagen y el texto, y la persona elige LinkedIn ahí.
-   * En escritorio eso no existe, así que se mantiene descargar + copiar +
-   * abrir. Y si es un móvil sin Web Share, se ofrecen las tres acciones
-   * sueltas para que las haga a su ritmo.
+   * En móvil se abre el menú del sistema con la imagen. El texto se copia
+   * ANTES, porque cada app decide si usa el campo `text` de Web Share y varias
+   * —LinkedIn entre ellas— lo descartan al recibir una imagen: así al menos
+   * está en el portapapeles para pegarlo.
+   *
+   * La copia se lanza sin esperarla a propósito. Un await aquí consumiría la
+   * activación del gesto y Safari rechazaría el menú.
    */
   const shareLinkedIn = async () => {
     if (busy || !requireInputs()) return
 
     const cached = badgeRef.current
-    // Sin await antes de share(): Safari perdería la activación del gesto.
     if (cached && canShareFile(toBadgeFile(cached))) {
-      const result = await shareFile(toBadgeFile(cached), SHARE_TEXT)
+      const copying = copyTextEager(SHARE_TEXT)
+      const sharing = shareFile(toBadgeFile(cached), SHARE_TEXT)
+
+      copying.then((ok) => {
+        if (ok) flash("✓ Texto copiado · selecciona dónde compartir")
+      })
+
+      const result = await sharing
       if (result === "denied") setFallback(true)
       else if (result === "failed") {
         flash("No pudimos abrir el menú de compartir. Guarda tu pase e inténtalo de nuevo.")
@@ -216,7 +228,7 @@ export function Credential() {
     setBusy(true)
     setIsGenerated(true)
     try {
-      if (isTouchPrimary()) setFallback(true)
+      if (nativeShare) setFallback(true)
       else await shareOnDesktop()
     } catch (err) {
       console.error(err)
@@ -226,9 +238,6 @@ export function Credential() {
     }
   }
 
-  // En táctil se abre el menú del sistema, donde se elige la app: prometer
-  // LinkedIn sería inexacto.
-  const shareLabel = isTouchPrimary() ? "Compartir mi pase" : "Compartir en LinkedIn"
   const handle = formatHandle(username)
 
   return (
@@ -344,7 +353,27 @@ export function Credential() {
                 onClick={shareLinkedIn}
                 disabled={busy}
               >
-                {shareLabel}
+                {nativeShare ? (
+                  <>
+                    <svg
+                      className="bc-cred__share-icon"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      aria-hidden="true"
+                    >
+                      <path
+                        d="M12 3v13M12 3 8 7M12 3l4 4M5 14v5a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-5"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                    Compartir
+                  </>
+                ) : (
+                  "Compartir en LinkedIn"
+                )}
               </button>
               <button
                 className="bc-cred__download"
@@ -359,6 +388,9 @@ export function Credential() {
                 <div className="bc-cred__fallback">
                   <p>Tu pase está listo</p>
                   <div className="bc-cred__fallback-actions">
+                    <button type="button" onClick={downloadCredential} disabled={busy}>
+                      Descargar pase
+                    </button>
                     <button
                       type="button"
                       onClick={async () =>
@@ -370,12 +402,6 @@ export function Credential() {
                       }
                     >
                       Copiar texto
-                    </button>
-                    <button type="button" onClick={downloadCredential} disabled={busy}>
-                      Guardar pase
-                    </button>
-                    <button type="button" onClick={() => openComposer(SHARE_TEXT)}>
-                      Abrir LinkedIn
                     </button>
                   </div>
                 </div>

@@ -1238,3 +1238,11 @@
 .bc-cred__fallback-actions button:active {
   transform: scale(0.97);
 }
+
+.bc-cred__share-icon {
+  width: 16px;
+  height: 16px;
+  margin-right: 8px;
+  vertical-align: -3px;
+  display: inline-block;
+}

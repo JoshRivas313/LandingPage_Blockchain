@@ -66,9 +66,40 @@ export function canShareFile(file: File): boolean {
   )
 }
 
-/** Pantalla táctil como entrada principal. */
-export function isTouchPrimary(): boolean {
-  return window.matchMedia("(pointer: coarse)").matches
+/**
+ * ¿Sabe este navegador compartir imágenes?
+ *
+ * Se prueba con un PNG mínimo en lugar del pase real, para poder consultarlo
+ * al pintar —cuando aún no hay credencial generada— y decidir así qué dice el
+ * botón. Es detección por capacidad, no por ancho de pantalla.
+ */
+export function supportsFileShare(): boolean {
+  try {
+    const probe = new File([new Uint8Array([0x89, 0x50, 0x4e, 0x47])], "probe.png", {
+      type: "image/png",
+    })
+    return canShareFile(probe)
+  } catch {
+    return false
+  }
+}
+
+/**
+ * Copia sin esperar el resultado.
+ *
+ * Devuelve la promesa para consultarla después: esperarla antes de
+ * navigator.share() consumiría la activación del gesto y Safari rechazaría el
+ * menú con NotAllowedError.
+ */
+export function copyTextEager(text: string): Promise<boolean> {
+  try {
+    return navigator.clipboard.writeText(text).then(
+      () => true,
+      () => false,
+    )
+  } catch {
+    return Promise.resolve(false)
+  }
 }
 
 export type ShareResult = "shared" | "cancelled" | "denied" | "failed"
