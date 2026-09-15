@@ -17,7 +17,7 @@ export const CREDENTIAL = {
   /** Caja del nombre: centrada, linea base al 75 % de la altura. */
   name: { left: 0.175, right: 0.179, top: 0.71, height: 0.08, baseline: 0.75 },
   /** Caja del usuario de X: alineada a la izquierda, linea base al 84.5 %. */
-  handle: { left: 0.38, right: 0.27, top: 0.81, height: 0.07, baseline: 0.845 },
+  handle: { left: 0.4, right: 0.27, top: 0.81, height: 0.07, baseline: 0.845 },
   placeholder: { name: "TU NOMBRE", handle: "@tuusuario" },
 } as const
 
@@ -34,7 +34,7 @@ export function nameFontPx(name: string): number {
 
 /** Tamano del handle en px de la lamina maestra. */
 export function handleFontPx(handle: string): number {
-  return handle.length <= 12 ? 25 : handle.length <= 15 ? 21 : 18
+  return handle.length <= 12 ? 28 : handle.length <= 15 ? 24 : 21
 }
 
 /** px de la maestra -> unidad de contenedor, para que el preview escale solo. */

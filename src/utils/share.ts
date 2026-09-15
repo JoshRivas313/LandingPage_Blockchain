@@ -1,25 +1,20 @@
 /**
- * Compartir en LinkedIn sin OAuth ni API.
+ * Compartir en X sin OAuth ni API.
  *
  * El pase se descarga, el texto se copia al portapapeles y se abre el
- * compositor de LinkedIn con ese mismo texto ya escrito. La persona solo
- * arrastra la imagen.
+ * compositor de X con ese mismo texto ya escrito. La persona solo arrastra
+ * la imagen.
  */
 
 /**
- * Abre el compositor con el texto puesto.
+ * Abre el compositor de X con el texto puesto.
  *
- * `feed/?shareActive=true&text=` no está documentado por LinkedIn, pero es lo
- * que usan las webs que abren el compositor "con el mensaje listo": si hay
- * sesión iniciada lleva directo a redactar con el texto dentro; si no, pasa por
- * el login y vuelve.
- *
- * La imagen no puede prellenarse — LinkedIn no acepta adjuntos por URL —, por
- * eso el pase se descarga justo antes.
+ * La imagen no puede prellenarse — X no acepta adjuntos por URL —, por eso
+ * el pase se descarga justo antes.
  */
 export function openComposer(text: string): void {
   window.open(
-    `https://www.linkedin.com/feed/?shareActive=true&text=${encodeURIComponent(text)}`,
+    `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`,
     "_blank",
     "noopener,noreferrer",
   )

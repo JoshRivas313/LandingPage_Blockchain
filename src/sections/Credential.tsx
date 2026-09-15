@@ -22,7 +22,7 @@ import {
   shareFile,
   supportsFileShare,
   toBadgeFile,
-} from "@/utils/linkedin"
+} from "@/utils/share"
 import { submitWallEntry } from "@/utils/wallApi"
 
 const pct = (n: number) => `${(n * 100).toFixed(2)}%`
@@ -216,13 +216,13 @@ export function Credential() {
    *
    * En móvil se abre el menú del sistema con la imagen. El texto se copia
    * ANTES, porque cada app decide si usa el campo `text` de Web Share y varias
-   * —LinkedIn entre ellas— lo descartan al recibir una imagen: así al menos
-   * está en el portapapeles para pegarlo.
+   * —X entre ellas— lo descartan al recibir una imagen: así al menos está en
+   * el portapapeles para pegarlo.
    *
    * La copia se lanza sin esperarla a propósito. Un await aquí consumiría la
    * activación del gesto y Safari rechazaría el menú.
    */
-  const shareLinkedIn = async () => {
+  const shareOnX = async () => {
     if (busy || !requireInputs()) return
 
     const cached = badgeRef.current
@@ -264,8 +264,8 @@ export function Credential() {
         <div className="bc-cred__head" data-reveal>
           <h2>Comparte que serás parte</h2>
           <p>
-            Crea tu pase en segundos y compártelo en LinkedIn para contarle a tu comunidad que
-            estarás en Blockchain Conf.
+            Crea tu pase en segundos y compártelo en X para contarle a tu comunidad que estarás en
+            Blockchain Conf.
           </p>
         </div>
 
@@ -388,7 +388,7 @@ export function Credential() {
               <button
                 className="bc-cred__share"
                 type="button"
-                onClick={shareLinkedIn}
+                onClick={shareOnX}
                 disabled={busy}
               >
                 {nativeShare ? (
@@ -410,7 +410,7 @@ export function Credential() {
                     Compartir
                   </>
                 ) : (
-                  "Compartir en LinkedIn"
+                  "Compartir en X"
                 )}
               </button>
               <button
