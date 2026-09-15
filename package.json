@@ -7,7 +7,7 @@
     "dev": "vite",
     "build": "npm run typecheck && vite build",
     "preview": "vite preview",
-    "typecheck": "tsc --noEmit && tsc -p tsconfig.api.json",
+    "typecheck": "tsc --noEmit",
     "images": "python scripts/optimize-images.py",
     "fonts": "python scripts/fetch-fonts.py"
   },
@@ -19,7 +19,6 @@
     "@types/node": "^26.5.1",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
-    "@vercel/node": "^13.0.1",
     "@vitejs/plugin-react": "^6.1.1",
     "typescript": "~5.9.3",
     "vite": "^8.3.0"

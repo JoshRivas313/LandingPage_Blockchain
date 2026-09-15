@@ -2,5 +2,4 @@
 # Las rutas van ancladas con "/" inicial: sin ella, "assets/" excluiria tambien
 # src/assets/ y el build se quedaria sin las imagenes.
 /assets/
-/uploads/
 /scripts/

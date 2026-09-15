@@ -28,8 +28,6 @@ src/
   constants/site.ts         URLs, textos compartidos
   assets/                   imagenes optimizadas (WebP)
   styles/                   tokens.css, base.css, home.css, docs.css, fonts.css
-api/linkedin/               funciones serverless (una por archivo)
-lib/                        codigo compartido por las funciones, fuera de api/
 public/fonts/               Inter + Manrope self-hosted (woff2)
 scripts/                    herramientas locales (Python), no forman parte del build
 ```
@@ -65,83 +63,44 @@ Ambos scripts necesitan Python con Pillow. No se ejecutan en el despliegue.
 
 ## Compartir en LinkedIn
 
-El botón publica **texto + credencial** directamente en el perfil del asistente,
-sin copiar ni pegar nada. El Share URL público de LinkedIn no permite rellenar el
-cuadro de comentario, así que se usa la API real:
+El botón hace tres cosas, en este orden: descarga el pase en PNG, copia el
+texto al portapapeles y abre el compositor de LinkedIn con ese mismo texto ya
+escrito. La persona solo arrastra la imagen y publica.
 
 ```
 Compartir en LinkedIn
-  → OAuth en ventana emergente (scope w_member_social)
-  → pantalla de confirmación con la imagen y el texto exactos
-  → Publicar  →  POST /v2/assets → subida del PNG → POST /v2/ugcPosts
+  → descarga el pase
+  → copia el texto
+  → abre linkedin.com/feed/?shareActive=true&text=...
 ```
 
-La emergente evita recargar la página: con una redirección se perderían el
-nombre, el usuario de X y la fotografía ya cargados.
+`shareActive` + `text` no están documentados por LinkedIn, pero es lo que usan
+las webs que abren el compositor "con el mensaje listo". La imagen no puede
+prellenarse: LinkedIn no acepta adjuntos por URL, y por eso el pase se descarga
+justo antes.
 
-### Funciones (`api/linkedin/`) y código compartido (`lib/`)
+La copia al portapapeles es la red de seguridad por si el prellenado falla. Si
+la copia no ocurre —algunos navegadores la bloquean sin gesto de usuario— la
+interfaz omite esa línea en vez de afirmar algo falso.
 
-| Endpoint | Qué hace |
-| --- | --- |
-| `start` | Genera el `state`, lo guarda en cookie y redirige a LinkedIn |
-| `callback` | Valida el `state`, canjea el `code`, guarda la sesión cifrada |
-| `session` | Dice si está configurado/autorizado y devuelve el texto a publicar |
-| `publish` | Sube el PNG a LinkedIn y crea la publicación |
-
-Decisiones que conviene no deshacer:
-
-- **El código compartido vive en `lib/`, fuera de `api/`.** Vercel convierte en
-  función *cada* archivo dentro de `api/`, así que un `api/_lib/` acabaría
-  desplegado como endpoints sin handler. Desde `lib/` se incrusta en el bundle
-  de cada función al seguir los imports.
-- **El texto vive en el servidor** (`lib/config.ts`). `publish` ignora
-  cualquier texto que mande el cliente, así que el endpoint no puede usarse para
-  escribir cosas arbitrarias en el perfil de alguien.
-- **El access token nunca llega al navegador.** Va en una cookie `HttpOnly`,
-  `Secure`, `SameSite=Lax` y además cifrada con AES-256-GCM.
-- **`SameSite=Lax` + comprobación de `Origin`** es lo que protege `publish` de
-  CSRF. La cookie sigue viajando al volver de `linkedin.com` porque esa es una
-  navegación GET de nivel superior.
-
-### Puesta en marcha
-
-1. Crear una app en <https://www.linkedin.com/developers/apps>, asociada a la
-   página de LinkedIn de DSC UTP (hay que verificarla desde la página).
-2. En **Products**, añadir *Sign In with LinkedIn using OpenID Connect* y
-   *Share on LinkedIn*.
-3. En **Auth → Redirect URLs**, añadir exactamente
-   `https://TU-DOMINIO/api/linkedin/callback`. LinkedIn exige coincidencia
-   literal, así que cada dominio de preview necesitaría su propia entrada; lo
-   normal es fijar el de producción con `LINKEDIN_REDIRECT_ORIGIN`.
-4. Configurar en Vercel las variables de `.env.example`.
-
-Mientras falte cualquiera de las tres variables, `session` responde
-`configured: false` y **el botón no se muestra**: solo queda «Descargar mi pase».
-Así nadie se topa con un flujo a medias.
-
-Límite de LinkedIn: 150 publicaciones por miembro y día, 100 000 por app y día.
-
-### Desarrollo local
-
-`npm run dev` levanta solo el frontend, sin las funciones, así que el botón de
-LinkedIn no aparecerá. Para probarlo entero hace falta `vercel dev` con las
-variables de entorno puestas.
+Sin OAuth, sin app de LinkedIn, sin backend y sin variables de entorno. El
+texto está en `src/constants/site.ts`.
 
 ## Despliegue
 
 Vercel, con `vercel.json` ya configurado (build `npm run build`, salida `dist/`,
-cache inmutable para `/assets` y `/fonts`). Las funciones de `api/` las detecta
-Vercel automáticamente. Las variables de entorno están en `.env.example`.
+cache inmutable para `/assets` y `/fonts`). Sitio estático puro: sin funciones
+serverless, sin variables de entorno y sin backend.
 
 ## Material de origen
 
-`uploads/` guarda el proyecto anterior de Figma Make y los prompts de diseño
-originales. No entra en el build ni se despliega (`.vercelignore`); se conserva
-como referencia.
+Los originales sin comprimir de las imágenes viven en `assets/`, fuera del
+build; son la fuente de `npm run images`.
 
-La implementación anterior del sitio (`*.dc.html` + `support.js`) se eliminó al
-quedar sustituida por esta build. Sigue en el historial de git:
+El proyecto anterior (`uploads/`), la implementación previa del sitio
+(`*.dc.html` + `support.js`) y la integración con la API de LinkedIn (`api/` y
+`lib/`) se eliminaron al quedar sin uso. Siguen en el historial de git:
 
 ```bash
-git checkout 1c3279b -- "Blockchain Conf.dc.html" support.js
+git log --oneline --diff-filter=D --name-only
 ```
