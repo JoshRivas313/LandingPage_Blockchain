@@ -45,13 +45,8 @@ const PASS_VARS = {
   "--pass-h": CREDENTIAL.height,
 } as CSSProperties
 
-type Share = { copied: boolean }
-
-type Phase =
-  | { kind: "idle" }
-  | { kind: "preparing" }
-  | { kind: "shared"; steps: Share }
-  | { kind: "error"; message: string }
+/** El toast se monta, se anuncia y se va. No reserva sitio en el layout. */
+const TOAST_MS = 2600
 
 export function Credential() {
   const [name, setName] = useState("")
@@ -60,7 +55,16 @@ export function Credential() {
   const [isGenerated, setIsGenerated] = useState(false)
   const [busy, setBusy] = useState(false)
   const [creating, setCreating] = useState(false)
-  const [phase, setPhase] = useState<Phase>({ kind: "idle" })
+  const [toast, setToast] = useState("")
+
+  const toastTimer = useRef<number | undefined>(undefined)
+  useEffect(() => () => window.clearTimeout(toastTimer.current), [])
+
+  const flash = useCallback((message: string) => {
+    setToast(message)
+    window.clearTimeout(toastTimer.current)
+    toastTimer.current = window.setTimeout(() => setToast(""), TOAST_MS)
+  }, [])
 
   // Los object URL hay que revocarlos a mano o la foto se queda en memoria.
   const photoUrlRef = useRef("")
@@ -146,16 +150,15 @@ export function Credential() {
     if (busy || !requireInputs()) return
     setBusy(true)
     setIsGenerated(true)
-    setPhase({ kind: "preparing" })
 
     try {
       downloadBlob(await buildBlob(), fileName())
       const copied = await copyText(SHARE_TEXT)
       openComposer(SHARE_TEXT)
-      setPhase({ kind: "shared", steps: { copied } })
+      flash(copied ? "✓ Pase descargado y texto copiado" : "✓ Pase descargado")
     } catch (err) {
       console.error(err)
-      setPhase({ kind: "error", message: "No pudimos preparar tu pase. Inténtalo de nuevo." })
+      flash("No pudimos preparar tu pase. Inténtalo de nuevo.")
     } finally {
       setBusy(false)
     }
@@ -291,42 +294,16 @@ export function Credential() {
                 Comparte tu pase y etiqueta a alguien que también debería estar.
               </p>
 
-              {phase.kind === "preparing" && (
-                <p className="bc-cred__status" role="status">
-                  Preparando tu publicación…
-                </p>
-              )}
-
-              {phase.kind === "shared" && (
-                <div className="bc-cred__status bc-cred__status--ok" role="status">
-                  <p className="bc-cred__status-title">Tu publicación está lista 🚀</p>
-                  <ul className="bc-cred__steps">
-                    {[
-                      "✓ Pase descargado",
-                      ...(phase.steps.copied ? ["✓ Texto copiado"] : []),
-                      "↗ LinkedIn abierto",
-                    ].map((step, i) => (
-                      <li key={step} style={{ "--i": i } as CSSProperties}>
-                        {step}
-                      </li>
-                    ))}
-                  </ul>
-                  <p className="bc-cred__status-sub">
-                    Ahora agrega tu pase a la publicación.
-                    {phase.steps.copied && " Si el texto no aparece, pégalo con Ctrl+V."}
-                  </p>
-                </div>
-              )}
-
-              {phase.kind === "error" && (
-                <p className="bc-cred__status bc-cred__status--error" role="alert">
-                  {phase.message}
-                </p>
-              )}
             </div>
           </div>
         </div>
       </div>
+
+      {toast && (
+        <div className="bc-toast" role="status" aria-live="polite">
+          {toast}
+        </div>
+      )}
     </section>
   )
 }

@@ -1,3 +1,13 @@
+/** URL publica del sitio. Es la que se comparte y la que va en la metadata. */
+export const EVENT_URL = "https://landing-page-blockchain.vercel.app/"
+
+/**
+ * Donde se registra la gente de verdad.
+ *
+ * Se mantiene separada de EVENT_URL a proposito: los botones "Registrarme" y
+ * "YO SERE PARTE" tienen que llevar a algun sitio donde inscribirse, y
+ * apuntarlos a esta misma landing seria un enlace circular.
+ */
 export const REGISTRATION_URL = "https://luma.com/r750uqs6?tk=aylyJO"
 
 export const VENUE_MAP_URL =
@@ -29,14 +39,11 @@ export const FOOTER_INFO = [
 
 
 /** Texto que se copia al portapapeles y se prellena en el compositor. */
-export const SHARE_TEXT = `🚀 ¡Yo seré parte de Blockchain Conf!
+export const SHARE_TEXT = `🚀 ¡Nos vemos en #BlockchainConf! 🙌
 
-Una jornada para conectar, aprender y explorar blockchain, Web3 y sus aplicaciones junto a la comunidad.
+Este 19 de septiembre nos reunimos para hablar de blockchain, Web3, tecnología y comunidad en un evento organizado por Developer Student Club UTP. 💻✨
 
-📅 19 de septiembre
-📍 Auditorio UTP Sede Central
+Regístrate:
+${EVENT_URL}
 
-🔗 Regístrate y crea tu propio pase:
-${REGISTRATION_URL}
-
-#BlockchainConf #Blockchain #Web3 #ComunidadTech`
+#Blockchain #Web3 #DSCUTP`
