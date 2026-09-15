@@ -1,7 +1,7 @@
 import { readFile } from "node:fs/promises"
 import type { IncomingMessage, ServerResponse } from "node:http"
 import { formidable, type File } from "formidable"
-import { createPage, queryDataSource, uploadFileToNotion } from "./_notion"
+import { createPage, queryDataSource, uploadFileToNotion } from "./_notion.js"
 
 export const config = {
   api: { bodyParser: false },
