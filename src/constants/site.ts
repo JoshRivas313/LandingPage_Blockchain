@@ -61,3 +61,17 @@ Genera tu badge y súmate:
 ${EVENT_URL}
 
 #Blockchain #Web3 #DSCUTP`
+
+/**
+ * Texto para LinkedIn. Solo difiere de SHARE_TEXT en el nombre de la
+ * comunidad: alli se escribe "Developer Student Clubs - UTP".
+ */
+export const LINKEDIN_SHARE_TEXT = `¡Nos vemos en #BlockchainConf! 🚀✨
+
+Este 19 de septiembre nos reunimos junto a Developer Student Clubs - UTP para conectar, aprender y compartir sobre blockchain, Web3 y comunidad.
+
+Genera tu badge y súmate:
+
+${EVENT_URL}
+
+#Blockchain #Web3 #DSCUTP`

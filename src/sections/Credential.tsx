@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState, type CSSProperties } from "react"
 import { PhysicalBadgeModal } from "@/components/PhysicalBadgeModal"
-import { SHARE_TEXT } from "@/constants/site"
+import { LINKEDIN_SHARE_TEXT, SHARE_TEXT } from "@/constants/site"
 import {
   CREDENTIAL,
   canvasToBlob,
@@ -205,10 +205,10 @@ export function Credential() {
   }
 
   /** Escritorio: descargar, copiar y abrir el compositor. */
-  const shareOnDesktop = async (open: (text: string) => void) => {
+  const shareOnDesktop = async (open: (text: string) => void, text: string) => {
     downloadBlob(badgeRef.current ?? (await buildBlob()), fileName())
-    const copied = await copyText(SHARE_TEXT)
-    open(SHARE_TEXT)
+    const copied = await copyText(text)
+    open(text)
     flash(copied ? "✓ Pase descargado y texto copiado" : "✓ Pase descargado")
   }
 
@@ -223,13 +223,13 @@ export function Credential() {
    * La copia se lanza sin esperarla a propósito. Un await aquí consumiría la
    * activación del gesto y Safari rechazaría el menú.
    */
-  const share = async (open: (text: string) => void) => {
+  const share = async (open: (text: string) => void, text: string = SHARE_TEXT) => {
     if (busy || !requireInputs()) return
 
     const cached = badgeRef.current
     if (nativeShare && cached && canShareFile(toBadgeFile(cached))) {
-      const copying = copyTextEager(SHARE_TEXT)
-      const sharing = shareFile(toBadgeFile(cached), SHARE_TEXT)
+      const copying = copyTextEager(text)
+      const sharing = shareFile(toBadgeFile(cached), text)
 
       copying.then((ok) => {
         if (ok) flash("✓ Texto copiado · selecciona dónde compartir")
@@ -248,7 +248,7 @@ export function Credential() {
     setIsGenerated(true)
     try {
       if (nativeShare) setFallback(true)
-      else await shareOnDesktop(open)
+      else await shareOnDesktop(open, text)
     } catch (err) {
       console.error(err)
       flash("No pudimos preparar tu pase. Inténtalo de nuevo.")
@@ -424,7 +424,7 @@ export function Credential() {
                   <button
                     className="bc-cred__share bc-cred__share--linkedin"
                     type="button"
-                    onClick={() => share(openLinkedInComposer)}
+                    onClick={() => share(openLinkedInComposer, LINKEDIN_SHARE_TEXT)}
                     disabled={busy}
                   >
                     Compartir en LinkedIn
