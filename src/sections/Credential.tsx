@@ -226,7 +226,7 @@ export function Credential() {
     if (busy || !requireInputs()) return
 
     const cached = badgeRef.current
-    if (cached && canShareFile(toBadgeFile(cached))) {
+    if (nativeShare && cached && canShareFile(toBadgeFile(cached))) {
       const copying = copyTextEager(SHARE_TEXT)
       const sharing = shareFile(toBadgeFile(cached), SHARE_TEXT)
 

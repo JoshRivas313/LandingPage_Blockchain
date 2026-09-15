@@ -70,6 +70,11 @@ export function canShareFile(file: File): boolean {
  */
 export function supportsFileShare(): boolean {
   try {
+    // No basta con que el navegador sepa compartir archivos: Chrome y Edge en
+    // Windows tambien lo soportan, y alli el menu del sistema es peor que
+    // abrir el compositor directamente. Se exige ademas puntero tactil, que es
+    // lo que distingue un movil de un escritorio.
+    if (!window.matchMedia("(pointer: coarse)").matches) return false
     const probe = new File([new Uint8Array([0x89, 0x50, 0x4e, 0x47])], "probe.png", {
       type: "image/png",
     })
