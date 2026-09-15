@@ -56,7 +56,7 @@ export async function uploadFileToNotion(
   })
 
   const form = new FormData()
-  form.append("file", new Blob([bytes], { type: contentType }), filename)
+  form.append("file", new Blob([new Uint8Array(bytes)], { type: contentType }), filename)
 
   const sendRes = await fetch(`${NOTION_API}/file_uploads/${created.id}/send`, {
     method: "POST",
