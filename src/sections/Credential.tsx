@@ -12,7 +12,8 @@ import {
   templateSrc,
   toCqw,
 } from "@/utils/credential"
-import { authorize, getSession, publish, type LinkedInSession } from "@/utils/linkedin"
+import { SHARE_TEXT } from "@/constants/site"
+import { authorize, getSession, openComposer, publish, type LinkedInSession } from "@/utils/linkedin"
 
 const pct = (n: number) => `${(n * 100).toFixed(2)}%`
 
@@ -51,6 +52,7 @@ type Phase =
   | { kind: "confirming"; previewUrl: string; blob: Blob }
   | { kind: "publishing"; previewUrl: string }
   | { kind: "published" }
+  | { kind: "composer" }
   | { kind: "error"; message: string }
 
 export function Credential() {
@@ -151,6 +153,28 @@ export function Credential() {
     setPhase({ kind: "idle" })
   }
 
+/**
+   * Sin integración configurada: se descarga el pase y se abre el compositor de
+   * LinkedIn con el texto ya escrito. La persona solo arrastra la imagen.
+   */
+  const shareManually = async () => {
+    if (busy || !requireInputs()) return
+    setBusy(true)
+    setIsGenerated(true)
+    try {
+      setPhase({ kind: "preparing" })
+      const slug = name.trim().toLowerCase().replace(/\s+/g, "-") || "invitado"
+      downloadBlob(await buildBlob(), `blockchain-conf-${slug}.png`)
+      openComposer(session?.shareText ?? SHARE_TEXT)
+      setPhase({ kind: "composer" })
+    } catch (err) {
+      console.error(err)
+      setPhase({ kind: "error", message: "No pudimos preparar tu pase. Inténtalo de nuevo." })
+    } finally {
+      setBusy(false)
+    }
+  }
+
   /** Compartir = autorizar (si hace falta) -> generar -> confirmar -> publicar. */
   const shareLinkedIn = async () => {
     if (busy || !requireInputs()) return
@@ -225,7 +249,8 @@ export function Credential() {
   }
 
   const handle = formatHandle(username)
-  const showLinkedIn = session?.configured === true
+  // Con integración, publica sola. Sin ella, abre el compositor con el texto.
+  const hasApi = session?.configured === true
   const dialogPreview =
     phase.kind === "confirming" || phase.kind === "publishing" ? phase.previewUrl : null
 
@@ -326,16 +351,14 @@ export function Credential() {
                 >
                   ⬇ Descargar mi pase
                 </button>
-                {showLinkedIn && (
-                  <button
-                    className="bc-cred__share"
-                    type="button"
-                    onClick={shareLinkedIn}
-                    disabled={busy}
-                  >
-                    Compartir en LinkedIn
-                  </button>
-                )}
+                <button
+                  className="bc-cred__share"
+                  type="button"
+                  onClick={hasApi ? shareLinkedIn : shareManually}
+                  disabled={busy || session === null}
+                >
+                  Compartir en LinkedIn
+                </button>
               </div>
 
               {phase.kind === "connecting" && (
@@ -346,6 +369,14 @@ export function Credential() {
               {phase.kind === "preparing" && (
                 <p className="bc-cred__status" role="status">
                   Preparando tu publicación…
+                </p>
+              )}
+              {phase.kind === "composer" && (
+                <p className="bc-cred__status bc-cred__status--ok" role="status">
+                  ✓ LinkedIn abierto con el mensaje listo
+                  <span className="bc-cred__status-sub">
+                    Solo adjunta el pase que se acaba de descargar y publica.
+                  </span>
                 </p>
               )}
               {phase.kind === "published" && (

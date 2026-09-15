@@ -14,7 +14,7 @@ export default function handler(req: VercelRequest, res: VercelResponse) {
   res.setHeader("Cache-Control", "no-store")
 
   if (!env) {
-    res.status(200).json({ configured: false, authorized: false })
+    res.status(200).json({ configured: false, authorized: false, shareText: SHARE_TEXT })
     return
   }
 

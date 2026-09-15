@@ -27,3 +27,22 @@ export const FOOTER_INFO = [
   { label: "Código de conducta", href: "/codigo-de-conducta/" },
 ] as const
 
+
+/**
+ * Texto de la publicación para la vía manual de LinkedIn.
+ *
+ * Cuando la API está configurada, el servidor manda el suyo en
+ * /api/linkedin/session y ese tiene prioridad; este es el que se usa cuando no
+ * hay integración (o en desarrollo, donde las funciones no se ejecutan).
+ */
+export const SHARE_TEXT = `🚀 ¡Yo seré parte de Blockchain Conf!
+
+Un día para conectar, aprender y explorar el ecosistema blockchain, Web3 y sus aplicaciones.
+
+📅 19 de septiembre
+📍 Auditorio UTP Sede Central
+
+🔗 Regístrate y crea tu propio pase:
+${REGISTRATION_URL}
+
+#BlockchainConf #Blockchain #Web3 #ComunidadTech`

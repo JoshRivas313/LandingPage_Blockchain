@@ -111,3 +111,22 @@ export async function publish(png: Blob): Promise<{ ok: true } | { ok: false; er
   return { ok: false, error: "linkedin" }
 }
 
+
+/**
+ * Vía manual: abre el compositor de LinkedIn con el texto ya escrito.
+ *
+ * `feed/?shareActive=true&text=` no está documentado, pero es lo que usan las
+ * webs que abren LinkedIn "con el mensaje listo": si la sesión está iniciada
+ * lleva directo al compositor con el texto puesto; si no, pasa por el login y
+ * vuelve. No necesita app de LinkedIn, OAuth ni credenciales.
+ *
+ * La imagen no se puede prellenar —LinkedIn no acepta adjuntos por URL—, así
+ * que el pase se descarga antes y la persona lo arrastra al compositor.
+ */
+export function openComposer(text: string): void {
+  window.open(
+    `https://www.linkedin.com/feed/?shareActive=true&text=${encodeURIComponent(text)}`,
+    "_blank",
+    "noopener,noreferrer",
+  )
+}

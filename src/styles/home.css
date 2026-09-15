@@ -915,3 +915,11 @@
     align-self: center;
   }
 }
+
+.bc-cred__status-sub {
+  display: block;
+  margin-top: 4px;
+  font-weight: 500;
+  font-size: 13px;
+  opacity: 0.85;
+}
