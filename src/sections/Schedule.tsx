@@ -10,10 +10,15 @@ export function Schedule() {
           <span className="bc-schedule__venue">📍 Auditorio UTP - Torre Arequipa</span>
         </div>
 
+        <div className="bc-timeline" data-reveal="line" />
         <div className="bc-timeline">
           {SCHEDULE.map((slot) => (
-            <div className="bc-timeline__row" key={slot.time} data-reveal>
-              <div className={`bc-slot${slot.type ? " bc-slot--hl" : ""}`}>
+            <div className="bc-timeline__row" key={slot.time} data-reveal data-stagger>
+              <div
+                className={`bc-slot${slot.type ? " bc-slot--hl" : ""}${
+                  slot.title === "Proximamente revelado" ? " bc-slot--soon" : ""
+                }`}
+              >
                 <span className="bc-slot__time">{slot.time}</span>
                 <h4 className="bc-slot__title">
                   {slot.type ? SLOT_ICON[slot.type] : ""}

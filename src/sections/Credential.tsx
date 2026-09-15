@@ -59,6 +59,7 @@ export function Credential() {
   const [photoUrl, setPhotoUrl] = useState("")
   const [isGenerated, setIsGenerated] = useState(false)
   const [busy, setBusy] = useState(false)
+  const [creating, setCreating] = useState(false)
   const [phase, setPhase] = useState<Phase>({ kind: "idle" })
 
   // Los object URL hay que revocarlos a mano o la foto se queda en memoria.
@@ -112,9 +113,18 @@ export function Credential() {
     return true
   }
 
-  /** Solo marca el pase como listo. El PNG no se genera hasta que se pide. */
+  /**
+   * Solo marca el pase como listo; el PNG no se genera hasta que se pide.
+   * El paso por "Creando…" es breve y existe para dar acuse de recibo al
+   * clic, no para simular trabajo.
+   */
   const handleGenerate = () => {
-    if (requireInputs()) setIsGenerated(true)
+    if (!requireInputs()) return
+    setCreating(true)
+    window.setTimeout(() => {
+      setCreating(false)
+      setIsGenerated(true)
+    }, 320)
   }
 
   const buildBlob = async () => canvasToBlob(await renderCredential({ name, username, photoUrl }))
@@ -164,8 +174,8 @@ export function Credential() {
           </p>
         </div>
 
-        <div className="bc-cred__cols" data-reveal>
-          <div className="bc-cred__form">
+        <div className="bc-cred__cols">
+          <div className="bc-cred__form" data-reveal="left">
             <p className="bc-cred__form-intro">
               Completa tus datos, genera tu pase y déjalo listo para compartir.
             </p>
@@ -206,14 +216,28 @@ export function Credential() {
               </label>
             </div>
 
-            <button className="bc-cred__submit" type="button" onClick={handleGenerate}>
-              Crear mi pase
+            <button
+              className="bc-cred__submit"
+              type="button"
+              onClick={handleGenerate}
+              disabled={creating}
+            >
+              {creating ? (
+                <>
+                  <span className="bc-spinner" aria-hidden="true" />
+                  Creando tu pase…
+                </>
+              ) : isGenerated ? (
+                "✓ ¡Tu pase está listo!"
+              ) : (
+                "Crear mi pase"
+              )}
             </button>
           </div>
 
-          <div className="bc-cred__side">
+          <div className="bc-cred__side" data-reveal="right">
             {/* Preview = la maestra escalada. Las medidas salen de CREDENTIAL. */}
-            <div className="bc-pass" style={PASS_VARS}>
+            <div className={`bc-pass${isGenerated ? " bc-pass--ready" : ""}`} style={PASS_VARS}>
               <img
                 className="bc-pass__template"
                 src={templateSrc}
@@ -277,9 +301,15 @@ export function Credential() {
                 <div className="bc-cred__status bc-cred__status--ok" role="status">
                   <p className="bc-cred__status-title">Tu publicación está lista 🚀</p>
                   <ul className="bc-cred__steps">
-                    <li>✓ Pase descargado</li>
-                    {phase.steps.copied && <li>✓ Texto copiado</li>}
-                    <li>↗ LinkedIn abierto</li>
+                    {[
+                      "✓ Pase descargado",
+                      ...(phase.steps.copied ? ["✓ Texto copiado"] : []),
+                      "↗ LinkedIn abierto",
+                    ].map((step, i) => (
+                      <li key={step} style={{ "--i": i } as CSSProperties}>
+                        {step}
+                      </li>
+                    ))}
                   </ul>
                   <p className="bc-cred__status-sub">
                     Ahora agrega tu pase a la publicación.

@@ -295,17 +295,48 @@ h4 {
 }
 
 /* ---------- Aparición al entrar en pantalla ----------
-   Solo opacity y transform, que el compositor resuelve sin repintar.
-   El estado inicial vive aquí y el hook solo cambia el atributo. */
 
-@keyframes bc-reveal {
+   Tres patrones y nada más, para que todas las secciones se muevan igual:
+
+     A  [data-reveal]         fade + subida        secciones
+     B  [data-reveal="x"]     fade + lateral       credencial en escritorio
+     C  [data-reveal="line"]  crece desde arriba   línea del cronograma
+
+   El estado inicial vive aquí; el hook solo añade el atributo "shown". El
+   escalonado se pasa con --i (índice del hermano). Solo opacity y transform:
+   el compositor los resuelve sin repintar. */
+
+@keyframes bc-reveal-up {
   from {
     opacity: 0;
     transform: translate3d(0, 18px, 0);
   }
-  to {
-    opacity: 1;
-    transform: translate3d(0, 0, 0);
+}
+
+@keyframes bc-reveal-left {
+  from {
+    opacity: 0;
+    transform: translate3d(-15px, 0, 0);
+  }
+}
+
+@keyframes bc-reveal-right {
+  from {
+    opacity: 0;
+    transform: translate3d(15px, 0, 0) scale(0.98);
+  }
+}
+
+@keyframes bc-reveal-line {
+  from {
+    transform: scaleY(0);
+  }
+}
+
+@keyframes bc-reveal-node {
+  from {
+    opacity: 0;
+    transform: scale(0.7);
   }
 }
 
@@ -313,14 +344,153 @@ h4 {
   opacity: 0;
 }
 
-[data-reveal="shown"] {
-  animation: bc-reveal 0.55s cubic-bezier(0.22, 0.61, 0.36, 1) both;
+[data-reveal="line"] {
+  opacity: 1;
+  transform: scaleY(0);
+  transform-origin: top;
 }
 
-/* Sin JS (o si falla), nada debe quedarse invisible. */
+[data-reveal][data-shown] {
+  opacity: 1;
+  animation: bc-reveal-up var(--t-section) var(--ease) both;
+  animation-delay: calc(var(--i, 0) * var(--stagger));
+}
+
+[data-reveal="left"][data-shown] {
+  animation-name: bc-reveal-left;
+}
+
+[data-reveal="right"][data-shown] {
+  animation-name: bc-reveal-right;
+}
+
+[data-reveal="line"][data-shown] {
+  transform: none;
+  animation: bc-reveal-line var(--t-section) var(--ease) both;
+}
+
+[data-reveal="node"][data-shown] {
+  animation-name: bc-reveal-node;
+  animation-duration: var(--t-normal);
+}
+
+/* En móvil todo entra en vertical: los desplazamientos laterales grandes
+   sientan mal en pantallas estrechas. */
+@media (max-width: 720px) {
+  [data-reveal="left"][data-shown],
+  [data-reveal="right"][data-shown] {
+    animation-name: bc-reveal-up;
+  }
+}
+
+/* Nada puede quedarse invisible si se pidió menos movimiento. */
 @media (prefers-reduced-motion: reduce) {
-  [data-reveal] {
+  [data-reveal],
+  [data-reveal="line"] {
     opacity: 1;
+    transform: none;
+    animation: none !important;
+  }
+}
+
+/* ---------- Navbar ----------
+
+   El alto NO cambia al hacer scroll a propósito. El nav es sticky y ocupa
+   sitio en el flujo, así que encogerlo empujaría todo el contenido hacia
+   arriba y eso cuenta como CLS. En su lugar se densifica el fondo y aparece
+   una sombra muy leve, que da la misma sensación sin mover un píxel. */
+
+.bc-nav {
+  transition:
+    background-color var(--t-micro) var(--ease),
+    box-shadow var(--t-micro) var(--ease),
+    border-color var(--t-micro) var(--ease);
+}
+
+.bc-nav--scrolled {
+  background: rgb(255 255 255 / 94%);
+  border-bottom-color: transparent;
+  box-shadow: 0 1px 0 rgb(226 232 240 / 90%), 0 6px 20px rgb(23 22 79 / 6%);
+}
+
+/* Entrada: el navbar baja unos píxeles, no entra desde fuera de pantalla. */
+@keyframes bc-nav-in {
+  from {
+    opacity: 0;
+    transform: translate3d(0, -6px, 0);
+  }
+}
+
+.bc-nav__brand,
+.bc-nav__link,
+.bc-nav .bc-btn {
+  animation: bc-nav-in var(--t-normal) var(--ease) both;
+}
+
+.bc-nav__link {
+  animation-delay: calc(var(--i, 0) * 60ms);
+  position: relative;
+  transition: color var(--t-micro) var(--ease);
+}
+
+.bc-nav .bc-btn {
+  animation-delay: 240ms;
+}
+
+/* Subrayado azul -> violeta que crece desde la izquierda. */
+.bc-nav__link::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -6px;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--g-brand);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform var(--t-micro) var(--ease);
+}
+
+.bc-nav__link:hover {
+  color: var(--c-navy);
+}
+
+.bc-nav__link:hover::after,
+.bc-nav__link:focus-visible::after {
+  transform: scaleX(1);
+}
+
+.bc-btn {
+  transition:
+    transform var(--t-micro) var(--ease),
+    box-shadow var(--t-micro) var(--ease);
+}
+
+.bc-btn:hover {
+  transform: translate3d(0, -2px, 0);
+  box-shadow: 0 8px 22px rgb(36 101 245 / 32%);
+}
+
+.bc-btn:active {
+  transform: scale(0.97);
+}
+
+/* ---------- Footer ---------- */
+
+.bc-footer__list a {
+  position: relative;
+  transition: color var(--t-micro) var(--ease);
+}
+
+.bc-footer__list a:hover {
+  color: var(--c-blue);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bc-nav__brand,
+  .bc-nav__link,
+  .bc-nav .bc-btn {
     animation: none;
   }
 }

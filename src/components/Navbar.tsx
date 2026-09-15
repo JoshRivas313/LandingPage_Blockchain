@@ -1,5 +1,6 @@
 import logo from "@/assets/blockchain-conf-logo.webp"
 import { REGISTRATION_URL, SECTION_LINKS } from "@/constants/site"
+import { useScrolled } from "@/hooks/useScrolled"
 
 /**
  * El menu movil es un <details> nativo: bajo 860 px los enlaces del navbar
@@ -7,10 +8,12 @@ import { REGISTRATION_URL, SECTION_LINKS } from "@/constants/site"
  * de React ni listeners.
  */
 export function Navbar() {
+  const scrolled = useScrolled()
+
   return (
-    <nav className="bc-nav">
+    <nav className={`bc-nav${scrolled ? " bc-nav--scrolled" : ""}`}>
       <div className="bc-nav__inner">
-        <a href="#evento" aria-label="Blockchain Conf, inicio">
+        <a className="bc-nav__brand" href="#evento" aria-label="Blockchain Conf, inicio">
           <img
             className="bc-nav__logo"
             src={logo}
@@ -24,8 +27,13 @@ export function Navbar() {
 
         <div className="bc-nav__right">
           <div className="bc-nav__links">
-            {SECTION_LINKS.map((link) => (
-              <a key={link.href} className="bc-nav__link" href={link.href}>
+            {SECTION_LINKS.map((link, i) => (
+              <a
+                key={link.href}
+                className="bc-nav__link"
+                href={link.href}
+                style={{ "--i": i + 1 } as React.CSSProperties}
+              >
                 {link.label}
               </a>
             ))}

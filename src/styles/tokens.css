@@ -51,3 +51,19 @@
   --fs-h2: clamp(26px, 3.4vw, 36px);
   --fs-h1-doc: clamp(30px, 4.2vw, 44px);
 }
+
+/* ---------- Motion ----------
+   Una sola curva y una escala de tiempos para toda la landing, para que las
+   secciones no parezcan hechas por personas distintas. */
+
+:root {
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+  --t-micro: 200ms; /* hover, active, feedback */
+  --t-normal: 420ms; /* elementos sueltos */
+  --t-section: 600ms; /* entradas de sección */
+  --t-hero: 760ms; /* piezas del hero */
+
+  /* Retardo entre hermanos en las entradas escalonadas. */
+  --stagger: 80ms;
+}

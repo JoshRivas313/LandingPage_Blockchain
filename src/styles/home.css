@@ -209,6 +209,10 @@
   margin: 0 0 40px;
 }
 
+.bc-partners__reveal {
+  overflow: hidden;
+}
+
 .bc-partners__track {
   display: flex;
   width: max-content;
@@ -855,4 +859,349 @@
   font-weight: 500;
   font-size: 13px;
   opacity: 0.85;
+}
+
+/* ============================================================
+   MOTION
+   ============================================================ */
+
+/* ---------- Hero: entrada secuencial ----------
+   Corre al cargar, no con scroll: el hero ya está en pantalla. Todo el
+   conjunto queda visible en ~1,3 s. */
+
+@keyframes bc-in-up {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 20px, 0) scale(0.98);
+  }
+}
+
+@keyframes bc-in-small {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 8px, 0);
+  }
+}
+
+@keyframes bc-in-mascot {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 20px, 0) scale(0.94);
+  }
+}
+
+.bc-hero__title,
+.bc-hero__lead,
+.bc-hero__meta span,
+.bc-hero__cta,
+.bc-hero__org {
+  animation: bc-in-small var(--t-normal) var(--ease) both;
+}
+
+.bc-hero__title {
+  animation-name: bc-in-up;
+  animation-duration: var(--t-hero);
+}
+
+.bc-hero__lead {
+  animation-delay: 180ms;
+}
+
+/* Los tres datos entran uno tras otro, con un stagger corto. */
+.bc-hero__meta span:nth-of-type(1) {
+  animation-delay: 300ms;
+}
+.bc-hero__meta span:nth-of-type(2) {
+  animation-delay: 380ms;
+}
+.bc-hero__meta span:nth-of-type(3) {
+  animation-delay: 460ms;
+}
+
+.bc-hero__cta {
+  animation-delay: 560ms;
+}
+
+.bc-hero__org {
+  animation-delay: 680ms;
+}
+
+/* ---------- Mascota ----------
+   Entra y luego respira. Solo transform: sin filtros animados. El
+   drop-shadow es estático, no se anima. */
+
+@keyframes bc-breathe {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+  50% {
+    transform: translate3d(0, -5px, 0);
+  }
+}
+
+.bc-hero__mascot {
+  animation:
+    bc-in-mascot var(--t-hero) var(--ease) 240ms both,
+    bc-breathe 5s ease-in-out 1s infinite;
+  transition: transform var(--t-micro) var(--ease);
+}
+
+.bc-hero__art:hover .bc-hero__mascot {
+  animation-play-state: paused;
+  transform: scale(1.02) rotate(1.5deg);
+}
+
+/* Las dos piezas decorativas flotan en ciclos distintos para que no
+   parezcan sincronizadas. */
+.bc-hero__chip--cyan {
+  animation: bc-breathe 6s ease-in-out infinite;
+}
+
+.bc-hero__chip--violet {
+  animation: bc-breathe 7s ease-in-out 0.8s infinite;
+}
+
+/* ---------- CTA del hero ----------
+   Una respiración cada 7 s, no un pulso continuo. */
+
+@keyframes bc-cta-breathe {
+  0%,
+  92%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  96% {
+    transform: translate3d(0, 0, 0) scale(1.015);
+  }
+}
+
+.bc-hero__cta {
+  background-size: 140% 100%;
+  transition:
+    transform var(--t-micro) var(--ease),
+    background-position var(--t-normal) var(--ease),
+    box-shadow var(--t-micro) var(--ease);
+}
+
+.bc-hero__cta:hover {
+  transform: translate3d(0, -2px, 0);
+  background-position: 100% 0;
+  box-shadow: 0 16px 34px rgb(36 101 245 / 34%);
+}
+
+.bc-hero__cta:active {
+  transform: scale(0.97);
+}
+
+/* ---------- Community partners ---------- */
+
+.bc-partners__item {
+  transition:
+    transform var(--t-micro) var(--ease),
+    border-color var(--t-micro) var(--ease),
+    box-shadow var(--t-micro) var(--ease);
+}
+
+.bc-partners__item:hover {
+  transform: translate3d(0, -3px, 0) scale(1.03);
+  border-color: rgb(36 101 245 / 35%);
+  box-shadow: 0 8px 18px rgb(23 22 79 / 8%);
+}
+
+/* ---------- Flechas del carrusel ---------- */
+
+.bc-arrow {
+  transition:
+    transform var(--t-micro) var(--ease),
+    background-color var(--t-micro) var(--ease),
+    border-color var(--t-micro) var(--ease),
+    opacity var(--t-micro) var(--ease);
+}
+
+.bc-arrow:not(:disabled):hover {
+  background: var(--c-mist);
+  border-color: rgb(36 101 245 / 35%);
+}
+
+.bc-speakers__nav .bc-arrow:not(:disabled):first-child:hover {
+  transform: translate3d(-2px, 0, 0);
+}
+
+.bc-speakers__nav .bc-arrow:not(:disabled):last-child:hover {
+  transform: translate3d(2px, 0, 0);
+}
+
+.bc-arrow:not(:disabled):active {
+  transform: scale(0.94);
+}
+
+/* ---------- Tarjetas de speaker ----------
+   El texto no se mueve por su cuenta y no se oculta nada tras el hover. */
+
+.bc-card:hover {
+  transform: translate3d(0, -5px, 0);
+}
+
+.bc-card:hover .bc-card__photo {
+  transform: scale(1.03);
+}
+
+/* ---------- Cronograma ---------- */
+
+.bc-timeline {
+  /* La línea vertical pasa a ser un pseudo-elemento para poder escalarla
+     sin tocar el borde del contenedor. */
+  border-left: 0;
+}
+
+.bc-timeline::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: var(--c-line);
+  transform-origin: top;
+}
+
+.bc-slot {
+  transition:
+    transform var(--t-micro) var(--ease),
+    box-shadow var(--t-micro) var(--ease);
+}
+
+.bc-slot:hover {
+  transform: translate3d(2px, 0, 0);
+}
+
+/* Franjas por anunciar: un brillo muy lento que sugiere que falta algo,
+   sin parpadeos ni skeletons. */
+@keyframes bc-shimmer {
+  0%,
+  100% {
+    background-position: -180% 0;
+  }
+  55%,
+  75% {
+    background-position: 280% 0;
+  }
+}
+
+.bc-slot--soon .bc-slot__title {
+  background: linear-gradient(
+    100deg,
+    var(--c-navy) 40%,
+    var(--c-blue) 50%,
+    var(--c-navy) 60%
+  );
+  background-size: 220% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: bc-shimmer 6s ease-in-out infinite;
+}
+
+/* ---------- Credencial ---------- */
+
+@keyframes bc-photo-in {
+  from {
+    opacity: 0;
+    transform: scale(0.98);
+  }
+}
+
+/* El marco no cambia de tamaño: solo la foto entra. */
+.bc-pass__photo img {
+  animation: bc-photo-in 300ms var(--ease) both;
+}
+
+@keyframes bc-pass-ready {
+  0% {
+    transform: scale(0.985);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+.bc-pass--ready {
+  animation: bc-pass-ready 350ms var(--ease) both;
+}
+
+.bc-cred__submit,
+.bc-cred__share,
+.bc-cred__download {
+  transition:
+    transform var(--t-micro) var(--ease),
+    box-shadow var(--t-micro) var(--ease),
+    background-color var(--t-micro) var(--ease);
+}
+
+.bc-cred__submit:not(:disabled):hover,
+.bc-cred__share:not(:disabled):hover,
+.bc-cred__download:not(:disabled):hover {
+  transform: translate3d(0, -2px, 0);
+}
+
+.bc-cred__share:not(:disabled):hover {
+  box-shadow: 0 12px 26px rgb(10 102 194 / 34%);
+}
+
+.bc-cred__submit:not(:disabled):active,
+.bc-cred__share:not(:disabled):active,
+.bc-cred__download:not(:disabled):active {
+  transform: scale(0.97);
+}
+
+/* Spinner del botón mientras se genera el pase. */
+@keyframes bc-spin {
+  to {
+    transform: rotate(1turn);
+  }
+}
+
+.bc-spinner {
+  display: inline-block;
+  width: 13px;
+  height: 13px;
+  margin-right: 8px;
+  vertical-align: -2px;
+  border: 2px solid rgb(255 255 255 / 45%);
+  border-top-color: var(--c-white);
+  border-radius: 50%;
+  animation: bc-spin 700ms linear infinite;
+}
+
+/* Los checks de compartir entran uno tras otro. */
+.bc-cred__steps li {
+  animation: bc-in-small var(--t-micro) var(--ease) both;
+  animation-delay: calc(var(--i, 0) * 120ms);
+}
+
+/* ---------- Menos movimiento ---------- */
+
+@media (prefers-reduced-motion: reduce) {
+  .bc-hero__title,
+  .bc-hero__lead,
+  .bc-hero__meta span,
+  .bc-hero__cta,
+  .bc-hero__org,
+  .bc-hero__mascot,
+  .bc-hero__chip--cyan,
+  .bc-hero__chip--violet,
+  .bc-pass__photo img,
+  .bc-pass--ready,
+  .bc-cred__steps li,
+  .bc-slot--soon .bc-slot__title {
+    animation: none !important;
+    opacity: 1;
+    transform: none;
+  }
+
+  .bc-slot--soon .bc-slot__title {
+    background: none;
+    color: var(--c-navy);
+  }
 }
