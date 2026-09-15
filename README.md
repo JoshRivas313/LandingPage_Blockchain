@@ -135,6 +135,13 @@ Vercel automáticamente. Las variables de entorno están en `.env.example`.
 
 ## Material de origen
 
-`*.dc.html`, `support.js`, `uploads/` y `screenshots/` son la versión anterior
-del sitio y su material de diseño. No entran en el build ni se despliegan
-(`.vercelignore`). Se conservan como referencia.
+`uploads/` guarda el proyecto anterior de Figma Make y los prompts de diseño
+originales. No entra en el build ni se despliega (`.vercelignore`); se conserva
+como referencia.
+
+La implementación anterior del sitio (`*.dc.html` + `support.js`) se eliminó al
+quedar sustituida por esta build. Sigue en el historial de git:
+
+```bash
+git checkout 1c3279b -- "Blockchain Conf.dc.html" support.js
+```

@@ -79,7 +79,7 @@ export function authorize(): Promise<"ok" | "cancelled" | "blocked" | "error"> {
   })
 }
 
-export type PublishError = "unauthorized" | "too-large" | "network" | "linkedin"
+type PublishError = "unauthorized" | "too-large" | "network" | "linkedin"
 
 function toBase64(blob: Blob): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -111,18 +111,3 @@ export async function publish(png: Blob): Promise<{ ok: true } | { ok: false; er
   return { ok: false, error: "linkedin" }
 }
 
-/** Lee ?linkedin=... que deja el callback y limpia la URL. */
-export function consumeAuthResult(): string | null {
-  const params = new URLSearchParams(window.location.search)
-  const status = params.get("linkedin")
-  if (!status) return null
-
-  params.delete("linkedin")
-  const qs = params.toString()
-  window.history.replaceState(
-    null,
-    "",
-    window.location.pathname + (qs ? `?${qs}` : "") + window.location.hash,
-  )
-  return status
-}

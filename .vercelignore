@@ -3,8 +3,4 @@
 # src/assets/ y el build se quedaria sin las imagenes.
 /assets/
 /uploads/
-/screenshots/
 /scripts/
-/*.dc.html
-/support.js
-/.thumbnail
