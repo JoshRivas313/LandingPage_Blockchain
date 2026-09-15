@@ -523,6 +523,10 @@
   border-top: 1px solid var(--c-line);
   display: flex;
   flex-wrap: wrap;
+  /* El emoji 👤 es mas alto que el texto y desplaza la linea base de su span.
+     Como son dos elementos flex independientes, sin esto cada uno apoya donde
+     quiere y el nombre y la comunidad quedan descuadrados. */
+  align-items: baseline;
   gap: 6px;
   font-size: 13px;
 }
