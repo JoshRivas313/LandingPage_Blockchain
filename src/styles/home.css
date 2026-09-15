@@ -9,6 +9,7 @@
   align-items: center;
   padding: clamp(48px, 7vw, 72px) var(--gutter) clamp(120px, 16vw, 180px);
   background: var(--c-white);
+  overflow: hidden;
 }
 
 /* Los dos halos del fondo. Eran dos <div> con filter:blur(70/90px), que obliga
@@ -815,6 +816,246 @@
   font-size: 13px;
   color: var(--c-muted);
   line-height: 1.5;
+}
+
+/* --- Publicar en muro / badge fisico ---
+   Van justo debajo de "Crear mi pase", en la misma columna del formulario. */
+
+.bc-cred__badge-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.bc-cred__badge-actions button {
+  width: 100%;
+  padding: 14px;
+  border-radius: var(--r-lg);
+  font-weight: 700;
+  font-size: 14px;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.bc-cred__badge-actions button:disabled {
+  opacity: 0.6;
+  cursor: default;
+}
+
+.bc-cred__wall {
+  background: var(--c-white);
+  border: 1px solid var(--c-violet);
+  color: var(--c-violet);
+  box-shadow: none;
+}
+
+.bc-cred__physical {
+  background: var(--g-brand);
+  color: var(--c-white);
+  border: none;
+  box-shadow: var(--sh-btn);
+}
+
+/* ============ MODAL: BADGE FISICO ============ */
+
+.bc-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.bc-modal__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgb(23 22 79 / 55%);
+}
+
+.bc-modal__panel {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 440px;
+  max-height: 90vh;
+  overflow-y: auto;
+  background: var(--c-white);
+  border-radius: var(--r-3xl);
+  box-shadow: var(--sh-preview);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.bc-modal__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.bc-modal__head h3 {
+  font-size: 20px;
+  font-weight: 800;
+  margin: 0 0 4px;
+}
+
+.bc-modal__head p {
+  margin: 0;
+  font-size: 13px;
+  color: var(--c-muted);
+}
+
+.bc-modal__close {
+  flex-shrink: 0;
+  padding: 6px 12px;
+  border: 1px solid var(--c-line);
+  border-radius: var(--r-md);
+  background: var(--c-white);
+  color: var(--c-navy);
+  font-size: 13px;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.bc-modal__notice {
+  margin: 0;
+  padding: 14px 16px;
+  background: #fdf1e8;
+  border: 1px solid #f3d9bd;
+  border-radius: var(--r-lg);
+  color: #92400e;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.bc-modal__yape {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+  background: var(--c-mist);
+  border: 1px solid var(--c-line);
+  border-radius: var(--r-2xl);
+  padding: 16px;
+}
+
+.bc-modal__yape img {
+  flex-shrink: 0;
+  width: 88px;
+  height: 88px;
+  object-fit: contain;
+  background: var(--c-white);
+  border: 1px solid var(--c-line);
+  border-radius: var(--r-lg);
+}
+
+.bc-modal__yape-label {
+  display: block;
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--c-violet);
+}
+
+.bc-modal__yape-amount {
+  margin: 4px 0 2px;
+  font-weight: 800;
+  font-size: 15px;
+  color: var(--c-navy);
+}
+
+.bc-modal__yape-name,
+.bc-modal__yape-phone {
+  margin: 0;
+  font-weight: 700;
+  font-size: 14px;
+  color: var(--c-navy);
+}
+
+.bc-modal__yape-phone {
+  margin-bottom: 6px;
+}
+
+.bc-modal__yape-hint {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.4;
+  color: var(--c-muted);
+}
+
+.bc-modal form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.bc-modal__error {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--c-red);
+}
+
+/* ============ MURO ============ */
+
+.bc-wall {
+  padding: var(--section-y) 0;
+  background: var(--c-mist);
+  border-top: 1px solid var(--c-line);
+}
+
+.bc-wall__head {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.bc-wall__head h2 {
+  font-weight: 800;
+  font-size: var(--fs-h2);
+  margin: 12px 0;
+}
+
+.bc-wall__head p {
+  margin: 0;
+  color: var(--c-muted);
+  font-size: 16px;
+}
+
+.bc-wall__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 16px;
+}
+
+.bc-wall__item {
+  margin: 0;
+  background: var(--c-white);
+  border: 1px solid var(--c-line);
+  border-radius: var(--r-xl);
+  overflow: hidden;
+}
+
+.bc-wall__item img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 1122 / 1402;
+  object-fit: cover;
+}
+
+.bc-wall__item figcaption {
+  padding: 8px 10px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--c-navy);
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 

@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState, type CSSProperties } from "react"
+import { PhysicalBadgeModal } from "@/components/PhysicalBadgeModal"
 import { SHARE_TEXT } from "@/constants/site"
 import {
   CREDENTIAL,
@@ -22,6 +23,7 @@ import {
   supportsFileShare,
   toBadgeFile,
 } from "@/utils/linkedin"
+import { submitWallEntry } from "@/utils/wallApi"
 
 const pct = (n: number) => `${(n * 100).toFixed(2)}%`
 
@@ -65,6 +67,8 @@ export function Credential() {
   const [creating, setCreating] = useState(false)
   const [toast, setToast] = useState("")
   const [fallback, setFallback] = useState(false)
+  const [publishing, setPublishing] = useState(false)
+  const [showBadgeModal, setShowBadgeModal] = useState(false)
 
   /**
    * PNG ya generado, listo para compartir.
@@ -182,6 +186,20 @@ export function Credential() {
       downloadBlob(badgeRef.current ?? (await buildBlob()), fileName())
     } finally {
       setBusy(false)
+    }
+  }
+
+  /** Sube la credencial ya generada a la galeria publica del muro. */
+  const publishToWall = async () => {
+    if (publishing || !badgeRef.current) return
+    setPublishing(true)
+    try {
+      await submitWallEntry({ kind: "digital", nombre: name, username, credencial: badgeRef.current })
+      flash("✓ Publicado en el muro")
+    } catch {
+      flash("No pudimos publicar tu credencial. Inténtalo de nuevo.")
+    } finally {
+      setPublishing(false)
     }
   }
 
@@ -310,6 +328,26 @@ export function Credential() {
                 "Crear mi pase"
               )}
             </button>
+
+            {isGenerated && (
+              <div className="bc-cred__badge-actions">
+                <button
+                  className="bc-cred__wall"
+                  type="button"
+                  onClick={publishToWall}
+                  disabled={publishing}
+                >
+                  {publishing ? "Publicando…" : "Publicar en muro"}
+                </button>
+                <button
+                  className="bc-cred__physical"
+                  type="button"
+                  onClick={() => setShowBadgeModal(true)}
+                >
+                  Solicitar badge físico
+                </button>
+              </div>
+            )}
           </div>
 
           <div className="bc-cred__side" data-reveal="right">
@@ -410,7 +448,6 @@ export function Credential() {
               <p className="bc-cred__nudge">
                 Comparte tu pase y etiqueta a alguien que también debería estar.
               </p>
-
             </div>
           </div>
         </div>
@@ -420,6 +457,19 @@ export function Credential() {
         <div className="bc-toast" role="status" aria-live="polite">
           {toast}
         </div>
+      )}
+
+      {showBadgeModal && badgeRef.current && (
+        <PhysicalBadgeModal
+          name={name}
+          username={username}
+          credencial={badgeRef.current}
+          onClose={() => setShowBadgeModal(false)}
+          onSuccess={() => {
+            setShowBadgeModal(false)
+            flash("✓ Solicitud de badge físico enviada")
+          }}
+        />
       )}
     </section>
   )

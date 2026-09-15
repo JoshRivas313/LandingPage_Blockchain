@@ -29,7 +29,15 @@ export const FOOTER_EXPLORE = [
   { label: "Evento", href: "#evento" },
   ...SECTION_LINKS,
   { label: "Credencial", href: "#credencial" },
+  { label: "Muro", href: "#muro" },
 ] as const
+
+/** Datos fijos de cobro por Yape para el badge fisico. */
+export const YAPE = {
+  name: "Gianmarco Guerrero",
+  phone: "919646023",
+  amount: 6,
+} as const
 
 export const FOOTER_INFO = [
   { label: "Ubicación", href: VENUE_MAP_URL, external: true },

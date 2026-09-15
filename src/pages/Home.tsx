@@ -5,6 +5,7 @@ import { Hero } from "@/sections/Hero"
 import { Partners } from "@/sections/Partners"
 import { Schedule } from "@/sections/Schedule"
 import { Speakers } from "@/sections/Speakers"
+import { Wall } from "@/sections/Wall"
 import { useReveal } from "@/hooks/useReveal"
 
 export function Home() {
@@ -19,6 +20,7 @@ export function Home() {
         <Speakers />
         <Schedule />
         <Credential />
+        <Wall />
       </main>
       <Footer />
     </div>
