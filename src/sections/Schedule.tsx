@@ -7,7 +7,7 @@ export function Schedule() {
         <div className="bc-schedule__head" data-reveal>
           <h2>Un día entero de blockchain</h2>
           <p>De la teoría a la práctica, hora por hora.</p>
-          <span className="bc-schedule__venue">📍 Auditorio UTP - Torre Arequipa</span>
+          <span className="bc-schedule__venue">📍 Auditorio UTP Sede Central</span>
         </div>
 
         <div className="bc-timeline" data-reveal="line" />
