@@ -1554,3 +1554,15 @@
   vertical-align: -3px;
   display: inline-block;
 }
+
+/* Segunda accion de compartir. Hereda de .bc-cred__share y solo cambia el
+   color de marca y la separacion respecto al boton de X. */
+.bc-cred__share--linkedin {
+  margin-top: 10px;
+  background: var(--c-linkedin);
+  box-shadow: 0 8px 20px rgb(10 102 194 / 25%);
+}
+
+.bc-cred__share--linkedin:not(:disabled):hover {
+  box-shadow: 0 12px 26px rgb(10 102 194 / 34%);
+}

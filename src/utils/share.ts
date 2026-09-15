@@ -21,6 +21,21 @@ export function openComposer(text: string): void {
 }
 
 /**
+ * Compositor de LinkedIn con el texto ya escrito.
+ *
+ * `shareActive` + `text` no estan documentados, pero es lo que usan las webs
+ * que abren LinkedIn "con el mensaje listo". Como en X, la imagen no puede
+ * prellenarse y por eso el pase se descarga justo antes.
+ */
+export function openLinkedInComposer(text: string): void {
+  window.open(
+    `https://www.linkedin.com/feed/?shareActive=true&text=${encodeURIComponent(text)}`,
+    "_blank",
+    "noopener,noreferrer",
+  )
+}
+
+/**
  * Copia el texto al portapapeles. Es la red de seguridad por si el prellenado
  * no funciona: entonces basta con pegar.
  *
