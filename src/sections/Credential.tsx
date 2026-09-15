@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState, type CSSProperties } from "react"
+import { SHARE_TEXT } from "@/constants/site"
 import {
   CREDENTIAL,
   canvasToBlob,
@@ -12,8 +13,7 @@ import {
   templateSrc,
   toCqw,
 } from "@/utils/credential"
-import { SHARE_TEXT } from "@/constants/site"
-import { authorize, getSession, openComposer, publish, type LinkedInSession } from "@/utils/linkedin"
+import { copyText, openComposer } from "@/utils/linkedin"
 
 const pct = (n: number) => `${(n * 100).toFixed(2)}%`
 
@@ -45,14 +45,12 @@ const PASS_VARS = {
   "--pass-h": CREDENTIAL.height,
 } as CSSProperties
 
+type Share = { copied: boolean }
+
 type Phase =
   | { kind: "idle" }
-  | { kind: "connecting" }
   | { kind: "preparing" }
-  | { kind: "confirming"; previewUrl: string; blob: Blob }
-  | { kind: "publishing"; previewUrl: string }
-  | { kind: "published" }
-  | { kind: "composer" }
+  | { kind: "shared"; steps: Share }
   | { kind: "error"; message: string }
 
 export function Credential() {
@@ -62,13 +60,6 @@ export function Credential() {
   const [isGenerated, setIsGenerated] = useState(false)
   const [busy, setBusy] = useState(false)
   const [phase, setPhase] = useState<Phase>({ kind: "idle" })
-  const [session, setSession] = useState<LinkedInSession | null>(null)
-
-  const dialogRef = useRef<HTMLDialogElement>(null)
-
-  useEffect(() => {
-    getSession().then(setSession)
-  }, [])
 
   // Los object URL hay que revocarlos a mano o la foto se queda en memoria.
   const photoUrlRef = useRef("")
@@ -80,15 +71,6 @@ export function Credential() {
       if (photoUrlRef.current) URL.revokeObjectURL(photoUrlRef.current)
     }
   }, [])
-
-  // El <dialog> nativo aporta el foco atrapado y Escape sin JS extra.
-  useEffect(() => {
-    const dialog = dialogRef.current
-    if (!dialog) return
-    const shouldOpen = phase.kind === "confirming" || phase.kind === "publishing"
-    if (shouldOpen && !dialog.open) dialog.showModal()
-    if (!shouldOpen && dialog.open) dialog.close()
-  }, [phase.kind])
 
   const replacePhoto = useCallback((next: string) => {
     setPhotoUrl((current) => {
@@ -136,37 +118,31 @@ export function Credential() {
   }
 
   const buildBlob = async () => canvasToBlob(await renderCredential({ name, username, photoUrl }))
+  const fileName = () =>
+    `blockchain-conf-${name.trim().toLowerCase().replace(/\s+/g, "-") || "invitado"}.png`
 
   const downloadCredential = async () => {
     if (busy) return
     setBusy(true)
     try {
-      const slug = name.trim().toLowerCase().replace(/\s+/g, "-") || "invitado"
-      downloadBlob(await buildBlob(), `blockchain-conf-${slug}.png`)
+      downloadBlob(await buildBlob(), fileName())
     } finally {
       setBusy(false)
     }
   }
 
-  const closeDialog = (previewUrl?: string) => {
-    if (previewUrl) URL.revokeObjectURL(previewUrl)
-    setPhase({ kind: "idle" })
-  }
-
-/**
-   * Sin integración configurada: se descarga el pase y se abre el compositor de
-   * LinkedIn con el texto ya escrito. La persona solo arrastra la imagen.
-   */
-  const shareManually = async () => {
+  /** Descargar el pase, copiar el texto y abrir LinkedIn, en ese orden. */
+  const shareLinkedIn = async () => {
     if (busy || !requireInputs()) return
     setBusy(true)
     setIsGenerated(true)
+    setPhase({ kind: "preparing" })
+
     try {
-      setPhase({ kind: "preparing" })
-      const slug = name.trim().toLowerCase().replace(/\s+/g, "-") || "invitado"
-      downloadBlob(await buildBlob(), `blockchain-conf-${slug}.png`)
-      openComposer(session?.shareText ?? SHARE_TEXT)
-      setPhase({ kind: "composer" })
+      downloadBlob(await buildBlob(), fileName())
+      const copied = await copyText(SHARE_TEXT)
+      openComposer(SHARE_TEXT)
+      setPhase({ kind: "shared", steps: { copied } })
     } catch (err) {
       console.error(err)
       setPhase({ kind: "error", message: "No pudimos preparar tu pase. Inténtalo de nuevo." })
@@ -175,98 +151,25 @@ export function Credential() {
     }
   }
 
-  /** Compartir = autorizar (si hace falta) -> generar -> confirmar -> publicar. */
-  const shareLinkedIn = async () => {
-    if (busy || !requireInputs()) return
-    setBusy(true)
-    setIsGenerated(true)
-
-    try {
-      let current = session ?? (await getSession())
-      setSession(current)
-
-      if (!current.authorized) {
-        setPhase({ kind: "connecting" })
-        const result = await authorize()
-
-        if (result === "blocked") {
-          setPhase({
-            kind: "error",
-            message: "Permite las ventanas emergentes para conectar con LinkedIn.",
-          })
-          return
-        }
-        if (result === "cancelled") {
-          setPhase({ kind: "idle" })
-          return
-        }
-        if (result === "error") {
-          setPhase({ kind: "error", message: "No pudimos conectar con LinkedIn. Inténtalo de nuevo." })
-          return
-        }
-
-        current = await getSession()
-        setSession(current)
-        if (!current.authorized) {
-          setPhase({ kind: "error", message: "No pudimos conectar con LinkedIn. Inténtalo de nuevo." })
-          return
-        }
-      }
-
-      setPhase({ kind: "preparing" })
-      const blob = await buildBlob()
-      setPhase({ kind: "confirming", previewUrl: URL.createObjectURL(blob), blob })
-    } catch (err) {
-      console.error(err)
-      setPhase({ kind: "error", message: "No pudimos preparar tu publicación. Inténtalo de nuevo." })
-    } finally {
-      setBusy(false)
-    }
-  }
-
-  /** Paso final, siempre explicito: nada se publica sin este clic. */
-  const confirmPublish = async () => {
-    if (phase.kind !== "confirming") return
-    const { blob, previewUrl } = phase
-    setPhase({ kind: "publishing", previewUrl })
-
-    const result = await publish(blob)
-    URL.revokeObjectURL(previewUrl)
-
-    if (result.ok) {
-      setPhase({ kind: "published" })
-      return
-    }
-
-    if (result.error === "unauthorized") {
-      setSession((s) => (s ? { ...s, authorized: false } : s))
-      setPhase({ kind: "error", message: "Tu sesión de LinkedIn caducó. Vuelve a intentarlo." })
-    } else if (result.error === "network") {
-      setPhase({ kind: "error", message: "Sin conexión. Revisa tu red e inténtalo de nuevo." })
-    } else {
-      setPhase({ kind: "error", message: "LinkedIn rechazó la publicación. Inténtalo más tarde." })
-    }
-  }
-
   const handle = formatHandle(username)
-  // Con integración, publica sola. Sin ella, abre el compositor con el texto.
-  const hasApi = session?.configured === true
-  const dialogPreview =
-    phase.kind === "confirming" || phase.kind === "publishing" ? phase.previewUrl : null
 
   return (
     <section className="bc-cred" id="credencial">
       <div className="bc-wrap">
         <div className="bc-cred__head" data-reveal>
-          <h2>Tu pase, a tu estilo</h2>
+          <h2>Comparte que serás parte</h2>
           <p>
-            Personalízalo en segundos, visualízalo al instante y llévatelo contigo a Blockchain
-            Conf.
+            Crea tu pase en segundos y compártelo en LinkedIn para contarle a tu comunidad que
+            estarás en Blockchain Conf.
           </p>
         </div>
 
         <div className="bc-cred__cols" data-reveal>
           <div className="bc-cred__form">
+            <p className="bc-cred__form-intro">
+              Completa tus datos, genera tu pase y déjalo listo para compartir.
+            </p>
+
             <div className="bc-field">
               <label className="bc-field__label" htmlFor="cred-name">
                 Nombre y apellido
@@ -342,48 +245,49 @@ export function Credential() {
             </div>
 
             <div className={`bc-cred__actions${isGenerated ? "" : " bc-cred__actions--idle"}`}>
-              <div className="bc-cred__buttons">
-                <button
-                  className="bc-cred__download"
-                  type="button"
-                  onClick={downloadCredential}
-                  disabled={busy}
-                >
-                  ⬇ Descargar mi pase
-                </button>
-                <button
-                  className="bc-cred__share"
-                  type="button"
-                  onClick={hasApi ? shareLinkedIn : shareManually}
-                  disabled={busy || session === null}
-                >
-                  Compartir en LinkedIn
-                </button>
-              </div>
+              {/* Compartir es la accion principal; descargar queda de apoyo. */}
+              <button
+                className="bc-cred__share"
+                type="button"
+                onClick={shareLinkedIn}
+                disabled={busy}
+              >
+                Compartir en LinkedIn
+              </button>
+              <button
+                className="bc-cred__download"
+                type="button"
+                onClick={downloadCredential}
+                disabled={busy}
+              >
+                ⬇ Descargar mi pase
+              </button>
 
-              {phase.kind === "connecting" && (
-                <p className="bc-cred__status" role="status">
-                  Conectando con LinkedIn…
-                </p>
-              )}
+              <p className="bc-cred__nudge">
+                Comparte tu pase y etiqueta a alguien que también debería estar.
+              </p>
+
               {phase.kind === "preparing" && (
                 <p className="bc-cred__status" role="status">
                   Preparando tu publicación…
                 </p>
               )}
-              {phase.kind === "composer" && (
-                <p className="bc-cred__status bc-cred__status--ok" role="status">
-                  ✓ LinkedIn abierto con el mensaje listo
-                  <span className="bc-cred__status-sub">
-                    Solo adjunta el pase que se acaba de descargar y publica.
-                  </span>
-                </p>
+
+              {phase.kind === "shared" && (
+                <div className="bc-cred__status bc-cred__status--ok" role="status">
+                  <p className="bc-cred__status-title">Tu publicación está lista 🚀</p>
+                  <ul className="bc-cred__steps">
+                    <li>✓ Pase descargado</li>
+                    {phase.steps.copied && <li>✓ Texto copiado</li>}
+                    <li>↗ LinkedIn abierto</li>
+                  </ul>
+                  <p className="bc-cred__status-sub">
+                    Ahora agrega tu pase a la publicación.
+                    {phase.steps.copied && " Si el texto no aparece, pégalo con Ctrl+V."}
+                  </p>
+                </div>
               )}
-              {phase.kind === "published" && (
-                <p className="bc-cred__status bc-cred__status--ok" role="status">
-                  ✓ ¡Publicado en LinkedIn!
-                </p>
-              )}
+
               {phase.kind === "error" && (
                 <p className="bc-cred__status bc-cred__status--error" role="alert">
                   {phase.message}
@@ -393,48 +297,6 @@ export function Credential() {
           </div>
         </div>
       </div>
-
-      {/* Confirmacion explicita: se ve la imagen y el texto exactos antes de publicar. */}
-      <dialog
-        className="bc-confirm"
-        ref={dialogRef}
-        onCancel={(e) => {
-          if (phase.kind === "publishing") e.preventDefault()
-          else closeDialog(dialogPreview ?? undefined)
-        }}
-      >
-        <h3 className="bc-confirm__title">Tu publicación está lista 🚀</h3>
-        <p className="bc-confirm__who">
-          Se publicará en tu perfil de LinkedIn
-          {session?.name ? ` como ${session.name}` : ""}.
-        </p>
-
-        <div className="bc-confirm__body">
-          {dialogPreview && (
-            <img className="bc-confirm__image" src={dialogPreview} alt="Tu credencial" />
-          )}
-          <pre className="bc-confirm__text">{session?.shareText}</pre>
-        </div>
-
-        <div className="bc-confirm__actions">
-          <button
-            type="button"
-            className="bc-confirm__cancel"
-            onClick={() => closeDialog(dialogPreview ?? undefined)}
-            disabled={phase.kind === "publishing"}
-          >
-            Cancelar
-          </button>
-          <button
-            type="button"
-            className="bc-confirm__publish"
-            onClick={confirmPublish}
-            disabled={phase.kind === "publishing"}
-          >
-            {phase.kind === "publishing" ? "Publicando en LinkedIn…" : "Publicar en LinkedIn"}
-          </button>
-        </div>
-      </dialog>
     </section>
   )
 }

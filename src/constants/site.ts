@@ -28,16 +28,10 @@ export const FOOTER_INFO = [
 ] as const
 
 
-/**
- * Texto de la publicación para la vía manual de LinkedIn.
- *
- * Cuando la API está configurada, el servidor manda el suyo en
- * /api/linkedin/session y ese tiene prioridad; este es el que se usa cuando no
- * hay integración (o en desarrollo, donde las funciones no se ejecutan).
- */
+/** Texto que se copia al portapapeles y se prellena en el compositor. */
 export const SHARE_TEXT = `🚀 ¡Yo seré parte de Blockchain Conf!
 
-Un día para conectar, aprender y explorar el ecosistema blockchain, Web3 y sus aplicaciones.
+Una jornada para conectar, aprender y explorar blockchain, Web3 y sus aplicaciones junto a la comunidad.
 
 📅 19 de septiembre
 📍 Auditorio UTP Sede Central
