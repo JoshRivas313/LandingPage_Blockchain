@@ -1191,3 +1191,50 @@
     animation: none;
   }
 }
+
+/* ---------- Respaldo de compartir ----------
+   Solo aparece en móviles sin Web Share con archivos, o si el sistema deniega
+   el menú nativo. En condiciones normales nunca se ve. */
+
+.bc-cred__fallback {
+  margin-top: 14px;
+  padding: 14px 16px;
+  background: var(--c-mist);
+  border: 1px solid var(--c-line);
+  border-radius: var(--r-lg);
+}
+
+.bc-cred__fallback p {
+  margin: 0 0 10px;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.bc-cred__fallback-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.bc-cred__fallback-actions button {
+  flex: 1 1 auto;
+  width: auto;
+  padding: 10px 14px;
+  font-size: 13px;
+  font-weight: 700;
+  font-family: inherit;
+  color: var(--c-navy);
+  background: var(--c-white);
+  border: 1px solid var(--c-line);
+  border-radius: var(--r-md);
+  cursor: pointer;
+  transition: transform var(--t-micro) var(--ease), border-color var(--t-micro) var(--ease);
+}
+
+.bc-cred__fallback-actions button:hover {
+  border-color: rgb(36 101 245 / 40%);
+}
+
+.bc-cred__fallback-actions button:active {
+  transform: scale(0.97);
+}

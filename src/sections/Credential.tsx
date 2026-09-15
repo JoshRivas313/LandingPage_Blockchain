@@ -13,7 +13,14 @@ import {
   templateSrc,
   toCqw,
 } from "@/utils/credential"
-import { copyText, openComposer } from "@/utils/linkedin"
+import {
+  canShareFile,
+  copyText,
+  isTouchPrimary,
+  openComposer,
+  shareFile,
+  toBadgeFile,
+} from "@/utils/linkedin"
 
 const pct = (n: number) => `${(n * 100).toFixed(2)}%`
 
@@ -56,6 +63,16 @@ export function Credential() {
   const [busy, setBusy] = useState(false)
   const [creating, setCreating] = useState(false)
   const [toast, setToast] = useState("")
+  const [fallback, setFallback] = useState(false)
+
+  /**
+   * PNG ya generado, listo para compartir.
+   *
+   * Se prepara al crear el pase porque navigator.share() necesita el gesto del
+   * usuario intacto: un await para generarlo dentro del propio clic consume la
+   * activación en Safari.
+   */
+  const badgeRef = useRef<Blob | null>(null)
 
   const toastTimer = useRef<number | undefined>(undefined)
   useEffect(() => () => window.clearTimeout(toastTimer.current), [])
@@ -77,13 +94,23 @@ export function Credential() {
     }
   }, [])
 
-  const replacePhoto = useCallback((next: string) => {
-    setPhotoUrl((current) => {
-      if (current) URL.revokeObjectURL(current)
-      return next
-    })
+  /** Al cambiar cualquier dato el PNG cacheado deja de valer. */
+  const invalidate = useCallback(() => {
+    badgeRef.current = null
     setIsGenerated(false)
+    setFallback(false)
   }, [])
+
+  const replacePhoto = useCallback(
+    (next: string) => {
+      setPhotoUrl((current) => {
+        if (current) URL.revokeObjectURL(current)
+        return next
+      })
+      invalidate()
+    },
+    [invalidate],
+  )
 
   const onPhotoUpload = useCallback(
     async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -94,10 +121,13 @@ export function Credential() {
     [replacePhoto],
   )
 
-  const onNameChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    setName(e.target.value)
-    setIsGenerated(false)
-  }, [])
+  const onNameChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      setName(e.target.value)
+      invalidate()
+    },
+    [invalidate],
+  )
 
   const onUsernameChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     setUsername(
@@ -106,8 +136,8 @@ export function Credential() {
         .replace(/[^A-Za-z0-9_]/g, "")
         .slice(0, 15),
     )
-    setIsGenerated(false)
-  }, [])
+    invalidate()
+  }, [invalidate])
 
   const requireInputs = () => {
     if (!name.trim() || !photoUrl) {
@@ -118,17 +148,23 @@ export function Credential() {
   }
 
   /**
-   * Solo marca el pase como listo; el PNG no se genera hasta que se pide.
-   * El paso por "Creando…" es breve y existe para dar acuse de recibo al
-   * clic, no para simular trabajo.
+   * Genera el PNG y lo deja en memoria.
+   *
+   * Aquí sí se hace el trabajo: tener el archivo listo antes de compartir es
+   * lo que permite llamar a navigator.share() sin await de por medio.
    */
-  const handleGenerate = () => {
-    if (!requireInputs()) return
+  const handleGenerate = async () => {
+    if (creating || !requireInputs()) return
     setCreating(true)
-    window.setTimeout(() => {
-      setCreating(false)
+    try {
+      badgeRef.current = await buildBlob()
       setIsGenerated(true)
-    }, 320)
+    } catch (err) {
+      console.error(err)
+      flash("No pudimos crear tu pase. Inténtalo de nuevo.")
+    } finally {
+      setCreating(false)
+    }
   }
 
   const buildBlob = async () => canvasToBlob(await renderCredential({ name, username, photoUrl }))
@@ -139,23 +175,49 @@ export function Credential() {
     if (busy) return
     setBusy(true)
     try {
-      downloadBlob(await buildBlob(), fileName())
+      downloadBlob(badgeRef.current ?? (await buildBlob()), fileName())
     } finally {
       setBusy(false)
     }
   }
 
-  /** Descargar el pase, copiar el texto y abrir LinkedIn, en ese orden. */
+  /** Escritorio: descargar, copiar y abrir el compositor. */
+  const shareOnDesktop = async () => {
+    downloadBlob(badgeRef.current ?? (await buildBlob()), fileName())
+    const copied = await copyText(SHARE_TEXT)
+    openComposer(SHARE_TEXT)
+    flash(copied ? "✓ Pase descargado y texto copiado" : "✓ Pase descargado")
+  }
+
+  /**
+   * Compartir.
+   *
+   * Si el navegador puede compartir archivos —el caso de los móviles— se abre
+   * el menú nativo con la imagen y el texto, y la persona elige LinkedIn ahí.
+   * En escritorio eso no existe, así que se mantiene descargar + copiar +
+   * abrir. Y si es un móvil sin Web Share, se ofrecen las tres acciones
+   * sueltas para que las haga a su ritmo.
+   */
   const shareLinkedIn = async () => {
     if (busy || !requireInputs()) return
+
+    const cached = badgeRef.current
+    // Sin await antes de share(): Safari perdería la activación del gesto.
+    if (cached && canShareFile(toBadgeFile(cached))) {
+      const result = await shareFile(toBadgeFile(cached), SHARE_TEXT)
+      if (result === "denied") setFallback(true)
+      else if (result === "failed") {
+        flash("No pudimos abrir el menú de compartir. Guarda tu pase e inténtalo de nuevo.")
+      }
+      // "cancelled" es cerrar el menú a propósito: no se avisa de nada.
+      return
+    }
+
     setBusy(true)
     setIsGenerated(true)
-
     try {
-      downloadBlob(await buildBlob(), fileName())
-      const copied = await copyText(SHARE_TEXT)
-      openComposer(SHARE_TEXT)
-      flash(copied ? "✓ Pase descargado y texto copiado" : "✓ Pase descargado")
+      if (isTouchPrimary()) setFallback(true)
+      else await shareOnDesktop()
     } catch (err) {
       console.error(err)
       flash("No pudimos preparar tu pase. Inténtalo de nuevo.")
@@ -164,6 +226,9 @@ export function Credential() {
     }
   }
 
+  // En táctil se abre el menú del sistema, donde se elige la app: prometer
+  // LinkedIn sería inexacto.
+  const shareLabel = isTouchPrimary() ? "Compartir mi pase" : "Compartir en LinkedIn"
   const handle = formatHandle(username)
 
   return (
@@ -279,7 +344,7 @@ export function Credential() {
                 onClick={shareLinkedIn}
                 disabled={busy}
               >
-                Compartir en LinkedIn
+                {shareLabel}
               </button>
               <button
                 className="bc-cred__download"
@@ -289,6 +354,32 @@ export function Credential() {
               >
                 ⬇ Descargar mi pase
               </button>
+
+              {fallback && (
+                <div className="bc-cred__fallback">
+                  <p>Tu pase está listo</p>
+                  <div className="bc-cred__fallback-actions">
+                    <button
+                      type="button"
+                      onClick={async () =>
+                        flash(
+                          (await copyText(SHARE_TEXT))
+                            ? "✓ Texto copiado"
+                            : "No pudimos copiar el texto",
+                        )
+                      }
+                    >
+                      Copiar texto
+                    </button>
+                    <button type="button" onClick={downloadCredential} disabled={busy}>
+                      Guardar pase
+                    </button>
+                    <button type="button" onClick={() => openComposer(SHARE_TEXT)}>
+                      Abrir LinkedIn
+                    </button>
+                  </div>
+                </div>
+              )}
 
               <p className="bc-cred__nudge">
                 Comparte tu pase y etiqueta a alguien que también debería estar.

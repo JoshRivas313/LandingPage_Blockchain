@@ -43,3 +43,53 @@ export async function copyText(text: string): Promise<boolean> {
     return false
   }
 }
+
+/** Nombre del archivo que ve la persona en el menú de compartir del móvil. */
+export const BADGE_FILENAME = "blockchain-conf-badge.png"
+
+export function toBadgeFile(png: Blob): File {
+  return new File([png], BADGE_FILENAME, { type: "image/png" })
+}
+
+/**
+ * ¿Puede este navegador compartir el pase como archivo?
+ *
+ * Detección por capacidad, no por tamaño de pantalla ni por user agent:
+ * `canShare({ files })` responde exactamente lo que necesitamos saber. En
+ * escritorio casi siempre es false, y ahí seguimos con descargar + copiar.
+ */
+export function canShareFile(file: File): boolean {
+  return (
+    typeof navigator.share === "function" &&
+    typeof navigator.canShare === "function" &&
+    navigator.canShare({ files: [file] })
+  )
+}
+
+/** Pantalla táctil como entrada principal. */
+export function isTouchPrimary(): boolean {
+  return window.matchMedia("(pointer: coarse)").matches
+}
+
+export type ShareResult = "shared" | "cancelled" | "denied" | "failed"
+
+/**
+ * Abre el menú nativo con la imagen y el texto.
+ *
+ * Importante: esto debe llamarse SIN ningún await previo dentro del manejador
+ * del clic. Safari exige activación del usuario y un await intermedio la
+ * consume, lo que acaba en NotAllowedError. Por eso el PNG se prepara antes,
+ * al crear el pase.
+ */
+export async function shareFile(file: File, text: string): Promise<ShareResult> {
+  try {
+    await navigator.share({ text, files: [file] })
+    return "shared"
+  } catch (err) {
+    const name = err instanceof Error ? err.name : ""
+    // Cerrar el menú no es un fallo: es una decisión.
+    if (name === "AbortError") return "cancelled"
+    if (name === "NotAllowedError") return "denied"
+    return "failed"
+  }
+}
