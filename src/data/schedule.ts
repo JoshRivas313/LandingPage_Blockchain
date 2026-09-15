@@ -35,7 +35,6 @@ export const SCHEDULE: Slot[] = [
     time: "01:10 pm – 01:40 pm",
     title: "Blockchain en la Transformación Digital Electoral del Perú",
     speaker: "Fernando Paredes",
-    community: "Syscoin",
   },
   {
     time: "01:40 pm – 02:10 pm",
