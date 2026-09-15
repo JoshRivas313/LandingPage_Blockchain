@@ -378,7 +378,7 @@ const SCHEDULE_DATA = [
   },
   {
     time: "09:40 am – 10:10 am",
-    title: "La blockchain en el campo legal",
+    title: "El cumplimiento normativo como potenciador estratégico para  startups web3",
     speaker: "Gerardo Huaman",
     community: "Club del Bitcoin",
     type: "talk",
@@ -390,10 +390,9 @@ const SCHEDULE_DATA = [
     type: "talk",
   },
   {
-    time: "10:40 am – 11:10 am",
-    title: "Visión de la blockchain desde el ámbito empresarial",
-    speaker: "JJ",
-    community: "NTT Data",
+    time: "10:10 am – 10:40 am",
+    title: "Ponencia 4",
+    speaker: "Por confirmar",
     type: "talk",
   },
   {
