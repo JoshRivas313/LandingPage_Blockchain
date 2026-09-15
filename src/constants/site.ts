@@ -38,12 +38,18 @@ export const FOOTER_INFO = [
 ] as const
 
 
-/** Texto que se copia al portapapeles y se prellena en el compositor. */
-export const SHARE_TEXT = `🚀 ¡Nos vemos en #BlockchainConf! 🙌
+/**
+ * Texto que se copia al portapapeles y se prellena en el compositor.
+ *
+ * La mencion a Developer Student Club UTP es obligatoria y va escrita tal
+ * cual: ni abreviada ni sustituida.
+ */
+export const SHARE_TEXT = `¡Nos vemos en #BlockchainConf! 🚀✨
 
-Este 19 de septiembre nos reunimos para hablar de blockchain, Web3, tecnología y comunidad en un evento organizado por Developer Student Club UTP. 💻✨
+Este 19 de septiembre nos reunimos junto a Developer Student Club UTP para conectar, aprender y compartir sobre blockchain, Web3 y comunidad.
 
-Regístrate:
+Genera tu badge y súmate:
+
 ${EVENT_URL}
 
 #Blockchain #Web3 #DSCUTP`
