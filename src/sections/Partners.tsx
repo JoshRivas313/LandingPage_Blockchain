@@ -6,7 +6,7 @@ const TRACK = [...PARTNERS, ...PARTNERS]
 export function Partners() {
   return (
     <section className="bc-partners" id="comunidades">
-      <h2 className="bc-partners__title">Community Partner</h2>
+      <h2 className="bc-partners__title" data-reveal>Community Partner</h2>
       <div className="bc-partners__track">
         {TRACK.map((partner, i) => {
           // La segunda vuelta solo existe para cerrar el bucle: no se anuncia.

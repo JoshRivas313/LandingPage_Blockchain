@@ -5,8 +5,11 @@ import { Hero } from "@/sections/Hero"
 import { Partners } from "@/sections/Partners"
 import { Schedule } from "@/sections/Schedule"
 import { Speakers } from "@/sections/Speakers"
+import { useReveal } from "@/hooks/useReveal"
 
 export function Home() {
+  useReveal()
+
   return (
     <div className="bc-shell">
       <Navbar />

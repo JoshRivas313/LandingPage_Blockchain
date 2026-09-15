@@ -4,7 +4,7 @@ export function Schedule() {
   return (
     <section className="bc-schedule" id="cronograma">
       <div className="bc-schedule__wrap">
-        <div className="bc-schedule__head">
+        <div className="bc-schedule__head" data-reveal>
           <h2>Un día entero de blockchain</h2>
           <p>De la teoría a la práctica, hora por hora.</p>
           <span className="bc-schedule__venue">📍 Auditorio UTP - Torre Arequipa</span>
@@ -12,7 +12,7 @@ export function Schedule() {
 
         <div className="bc-timeline">
           {SCHEDULE.map((slot) => (
-            <div className="bc-timeline__row" key={slot.time}>
+            <div className="bc-timeline__row" key={slot.time} data-reveal>
               <div className={`bc-slot${slot.type ? " bc-slot--hl" : ""}`}>
                 <span className="bc-slot__time">{slot.time}</span>
                 <h4 className="bc-slot__title">

@@ -8,7 +8,7 @@ export function Speakers() {
   return (
     <section className="bc-speakers" id="speakers">
       <div className="bc-wrap">
-        <div className="bc-speakers__head">
+        <div className="bc-speakers__head" data-reveal>
           <div className="bc-speakers__intro">
             <span className="bc-badge">Nuestros Expertos</span>
             <h2>Las mentes que mueven blockchain</h2>
@@ -40,6 +40,7 @@ export function Speakers() {
         </div>
 
         <div
+          data-reveal
           className="bc-carousel"
           tabIndex={0}
           aria-label="Carrusel de speakers, usa las flechas del teclado para navegar"

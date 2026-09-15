@@ -257,7 +257,7 @@ export function Credential() {
   return (
     <section className="bc-cred" id="credencial">
       <div className="bc-wrap">
-        <div className="bc-cred__head">
+        <div className="bc-cred__head" data-reveal>
           <h2>Tu pase, a tu estilo</h2>
           <p>
             Personalízalo en segundos, visualízalo al instante y llévatelo contigo a Blockchain
@@ -265,7 +265,7 @@ export function Credential() {
           </p>
         </div>
 
-        <div className="bc-cred__cols">
+        <div className="bc-cred__cols" data-reveal>
           <div className="bc-cred__form">
             <div className="bc-field">
               <label className="bc-field__label" htmlFor="cred-name">
