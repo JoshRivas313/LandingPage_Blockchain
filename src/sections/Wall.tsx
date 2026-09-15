@@ -41,7 +41,16 @@ export function Wall() {
         <div className="bc-wall__grid" data-reveal>
           {entries.slice(0, visibleCount).map((entry) => (
             <figure className="bc-wall__item" key={entry.id}>
-              {entry.credencialUrl && <img src={entry.credencialUrl} alt={entry.nombre} loading="lazy" />}
+              {entry.credencialUrl && (
+                <img
+                  src={entry.credencialUrl}
+                  alt={entry.nombre}
+                  width={1122}
+                  height={1402}
+                  loading="lazy"
+                  decoding="async"
+                />
+              )}
               <figcaption>{entry.nombre}</figcaption>
             </figure>
           ))}

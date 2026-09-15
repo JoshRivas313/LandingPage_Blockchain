@@ -1,5 +1,5 @@
 import { useState } from "react"
-import yapeQr from "@/assets/yape-qr.png"
+import yapeQr from "@/assets/yape-qr.webp"
 import { YAPE } from "@/constants/site"
 import { compressImageToBlob } from "@/utils/image"
 import { submitWallEntry } from "@/utils/wallApi"
@@ -67,7 +67,7 @@ export function PhysicalBadgeModal({ name, username, credencial, onClose, onSucc
         </p>
 
         <div className="bc-modal__yape">
-          <img src={yapeQr} alt="Código QR de Yape" />
+          <img src={yapeQr} alt="Código QR de Yape" width={320} height={320} decoding="async" />
           <div>
             <span className="bc-modal__yape-label">Pago por Yape</span>
             <p className="bc-modal__yape-amount">Monto a pagar: S/ {YAPE.amount}</p>

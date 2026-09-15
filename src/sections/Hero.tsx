@@ -40,8 +40,8 @@ export function Hero() {
             className="bc-hero__mascot"
             src={mascot}
             alt="Blockchain Conf mascota"
-            width={560}
-            height={656}
+            width={787}
+            height={840}
             fetchPriority="high"
             decoding="async"
           />

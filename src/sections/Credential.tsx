@@ -364,7 +364,7 @@ export function Credential() {
               />
 
               <div className="bc-pass__photo" style={PHOTO_BOX}>
-                {photoUrl && <img src={photoUrl} alt="" />}
+                {photoUrl && <img src={photoUrl} alt="" decoding="async" />}
               </div>
 
               <div className="bc-pass__name" style={NAME_BOX}>
