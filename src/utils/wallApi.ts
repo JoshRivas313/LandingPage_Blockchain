@@ -31,7 +31,7 @@ export type PhysicalBadgeInput = {
 }
 
 /** Publica una credencial en el muro, o una solicitud de badge fisico (que tambien publica). */
-export async function submitWallEntry(input: DigitalWallInput | PhysicalBadgeInput): Promise<void> {
+export async function submitWallEntry(input: DigitalWallInput | PhysicalBadgeInput): Promise<string> {
   const body = new FormData()
   body.append("kind", input.kind)
   body.append("nombre", input.nombre)
@@ -47,9 +47,35 @@ export async function submitWallEntry(input: DigitalWallInput | PhysicalBadgeInp
 
   const res = await fetch("/api/wall", { method: "POST", body })
   if (!res.ok) throw new Error("No se pudo enviar la solicitud")
+  const data = await res.json()
 
   // Toda publicacion exitosa (digital o fisica) queda en el muro: se avisa
   // aqui, en un solo lugar, para que ningun caller pueda olvidarlo.
+  notifyWallUpdated()
+  return data.id as string
+}
+
+export type PhysicalBadgeUpdateInput = {
+  recibeNombre: string
+  whatsapp: string
+  operacion: string
+  comprobante: Blob
+}
+
+/**
+ * Sube el comprobante de un badge fisico sobre una credencial que YA esta
+ * publicada en el muro, en vez de crear una fila duplicada.
+ */
+export async function updateWallEntry(entryId: string, input: PhysicalBadgeUpdateInput): Promise<void> {
+  const body = new FormData()
+  body.append("recibeNombre", input.recibeNombre)
+  body.append("whatsapp", input.whatsapp)
+  body.append("operacion", input.operacion)
+  body.append("comprobante", input.comprobante, "comprobante.jpg")
+
+  const res = await fetch(`/api/wall?id=${encodeURIComponent(entryId)}`, { method: "PATCH", body })
+  if (!res.ok) throw new Error("No se pudo enviar la solicitud")
+
   notifyWallUpdated()
 }
 

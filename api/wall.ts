@@ -1,7 +1,7 @@
 import { readFile } from "node:fs/promises"
 import type { IncomingMessage, ServerResponse } from "node:http"
 import { formidable, type File } from "formidable"
-import { createPage, queryDataSource, uploadFileToNotion } from "./_notion.js"
+import { createPage, queryDataSource, updatePage, uploadFileToNotion } from "./_notion.js"
 
 export const config = {
   api: { bodyParser: false },
@@ -119,6 +119,48 @@ async function createWallEntry(req: IncomingMessage, res: ServerResponse): Promi
   res.end(JSON.stringify({ id: page.id }))
 }
 
+/**
+ * Solicitud de badge fisico cuando la credencial YA esta publicada en el
+ * muro: en vez de crear una segunda fila (duplicado), se sube solo el
+ * comprobante y se actualiza la fila existente a Tipo=Fisico.
+ */
+async function updateWallEntry(req: IncomingMessage, res: ServerResponse, pageId: string): Promise<void> {
+  const form = formidable({ maxFileSize: MAX_FILE_BYTES, multiples: false })
+  const [fields, files] = await form.parse(req)
+
+  const recibeNombre = textOf(fields.recibeNombre)
+  const whatsapp = textOf(fields.whatsapp)
+  const operacion = textOf(fields.operacion)
+  const comprobante = fileOf(files.comprobante)
+
+  if (!recibeNombre || !whatsapp || !operacion || !comprobante) {
+    res.statusCode = 400
+    res.end(JSON.stringify({ error: "Faltan datos del pago para el badge fisico" }))
+    return
+  }
+
+  const comprobanteBytes = await readFile(comprobante.filepath)
+  const comprobanteUploadId = await uploadFileToNotion(
+    comprobanteBytes,
+    comprobante.originalFilename ?? "comprobante.jpg",
+    comprobante.mimetype ?? "image/jpeg",
+  )
+
+  const page = await updatePage(pageId, {
+    Tipo: { select: { name: "Físico" } },
+    "Nombre de quien recibe": { rich_text: [{ text: { content: recibeNombre } }] },
+    WhatsApp: { rich_text: [{ text: { content: whatsapp } }] },
+    "N Operacion Yape": { rich_text: [{ text: { content: operacion } }] },
+    "Comprobante de pago": {
+      files: [{ type: "file_upload", file_upload: { id: comprobanteUploadId }, name: "comprobante.jpg" }],
+    },
+  })
+
+  res.statusCode = 200
+  res.setHeader("Content-Type", "application/json")
+  res.end(JSON.stringify({ id: page.id }))
+}
+
 export default async function handler(req: IncomingMessage, res: ServerResponse): Promise<void> {
   try {
     if (req.method === "GET") {
@@ -127,6 +169,16 @@ export default async function handler(req: IncomingMessage, res: ServerResponse)
     }
     if (req.method === "POST") {
       await createWallEntry(req, res)
+      return
+    }
+    if (req.method === "PATCH") {
+      const id = new URL(req.url ?? "", "http://localhost").searchParams.get("id")
+      if (!id) {
+        res.statusCode = 400
+        res.end(JSON.stringify({ error: "Falta el id de la credencial a actualizar" }))
+        return
+      }
+      await updateWallEntry(req, res, id)
       return
     }
     res.statusCode = 405

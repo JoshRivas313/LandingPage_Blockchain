@@ -2,17 +2,19 @@ import { useState } from "react"
 import yapeQr from "@/assets/yape-qr.webp"
 import { YAPE } from "@/constants/site"
 import { compressImageToBlob } from "@/utils/image"
-import { submitWallEntry } from "@/utils/wallApi"
+import { submitWallEntry, updateWallEntry } from "@/utils/wallApi"
 
 type Props = {
   name: string
   username: string
   credencial: Blob
+  /** Id de la fila en el muro si la credencial ya se publico antes. */
+  wallEntryId: string | null
   onClose: () => void
-  onSuccess: () => void
+  onSuccess: (entryId: string) => void
 }
 
-export function PhysicalBadgeModal({ name, username, credencial, onClose, onSuccess }: Props) {
+export function PhysicalBadgeModal({ name, username, credencial, wallEntryId, onClose, onSuccess }: Props) {
   const [recibeNombre, setRecibeNombre] = useState("")
   const [whatsapp, setWhatsapp] = useState("")
   const [operacion, setOperacion] = useState("")
@@ -21,6 +23,7 @@ export function PhysicalBadgeModal({ name, username, credencial, onClose, onSucc
   const [error, setError] = useState("")
 
   const canSubmit = recibeNombre.trim() && whatsapp.trim() && operacion.trim() && comprobante
+  const alreadyPublished = Boolean(wallEntryId)
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -29,17 +32,19 @@ export function PhysicalBadgeModal({ name, username, credencial, onClose, onSucc
     setError("")
     try {
       const comprobanteBlob = await compressImageToBlob(comprobante!)
-      await submitWallEntry({
-        kind: "fisico",
-        nombre: name,
-        username,
-        credencial,
+      const fields = {
         recibeNombre: recibeNombre.trim(),
         whatsapp: whatsapp.trim(),
         operacion: operacion.trim(),
         comprobante: comprobanteBlob,
-      })
-      onSuccess()
+      }
+      // Si la credencial ya esta en el muro, solo se sube el comprobante
+      // sobre esa misma fila: subir la credencial otra vez crearia un
+      // duplicado.
+      const entryId = wallEntryId
+        ? await updateWallEntry(wallEntryId, fields).then(() => wallEntryId)
+        : await submitWallEntry({ kind: "fisico", nombre: name, username, credencial, ...fields })
+      onSuccess(entryId)
     } catch {
       setError("No pudimos procesar tu solicitud. Inténtalo de nuevo en unos minutos.")
     } finally {
@@ -62,8 +67,9 @@ export function PhysicalBadgeModal({ name, username, credencial, onClose, onSucc
         </div>
 
         <p className="bc-modal__notice">
-          Tu credencial se publicará en el muro junto con esta solicitud, para vincular el pago a tu
-          pase.
+          {alreadyPublished
+            ? "Tu credencial ya está publicada en el muro: solo necesitamos tu comprobante de pago."
+            : "Tu credencial se publicará en el muro junto con esta solicitud, para vincular el pago a tu pase."}
         </p>
 
         <div className="bc-modal__yape">

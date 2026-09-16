@@ -87,6 +87,14 @@ export function createPage(properties: NotionProperties): Promise<{ id: string }
   })
 }
 
+export function updatePage(pageId: string, properties: NotionProperties): Promise<{ id: string }> {
+  return notionFetch(`/pages/${pageId}`, {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ properties }),
+  })
+}
+
 export function queryDataSource(pageSize: number): Promise<{ results: any[] }> {
   return notionFetch(`/data_sources/${dataSourceId()}/query`, {
     method: "POST",

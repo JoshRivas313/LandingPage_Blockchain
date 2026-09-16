@@ -69,6 +69,8 @@ export function Credential() {
   const [fallback, setFallback] = useState(false)
   const [publishing, setPublishing] = useState(false)
   const [showBadgeModal, setShowBadgeModal] = useState(false)
+  /** Id de la fila en Notion si esta credencial ya se publico en el muro. */
+  const [wallEntryId, setWallEntryId] = useState<string | null>(null)
 
   /**
    * PNG ya generado, listo para compartir.
@@ -107,6 +109,9 @@ export function Credential() {
     badgeRef.current = null
     setIsGenerated(false)
     setFallback(false)
+    // El pase cambio: la fila publicada (si habia) ya no corresponde a esta
+    // credencial, asi que deja de poder actualizarse.
+    setWallEntryId(null)
   }, [])
 
   const replacePhoto = useCallback(
@@ -189,12 +194,18 @@ export function Credential() {
     }
   }
 
-  /** Sube la credencial ya generada a la galeria publica del muro. */
+  /**
+   * Sube la credencial ya generada a la galeria publica del muro.
+   *
+   * Si ya esta publicada (wallEntryId) no vuelve a enviarla: evita crear
+   * una fila duplicada en Notion con un segundo clic.
+   */
   const publishToWall = async () => {
-    if (publishing || !badgeRef.current) return
+    if (publishing || wallEntryId || !badgeRef.current) return
     setPublishing(true)
     try {
-      await submitWallEntry({ kind: "digital", nombre: name, username, credencial: badgeRef.current })
+      const id = await submitWallEntry({ kind: "digital", nombre: name, username, credencial: badgeRef.current })
+      setWallEntryId(id)
       flash("✓ Publicado en el muro")
     } catch {
       flash("No pudimos publicar tu credencial. Inténtalo de nuevo.")
@@ -335,9 +346,9 @@ export function Credential() {
                   className="bc-cred__wall"
                   type="button"
                   onClick={publishToWall}
-                  disabled={publishing}
+                  disabled={publishing || !!wallEntryId}
                 >
-                  {publishing ? "Publicando…" : "Publicar en muro"}
+                  {publishing ? "Publicando…" : wallEntryId ? "✓ Publicado en el muro" : "Publicar en muro"}
                 </button>
                 <button
                   className="bc-cred__physical"
@@ -464,8 +475,10 @@ export function Credential() {
           name={name}
           username={username}
           credencial={badgeRef.current}
+          wallEntryId={wallEntryId}
           onClose={() => setShowBadgeModal(false)}
-          onSuccess={() => {
+          onSuccess={(id) => {
+            setWallEntryId(id)
             setShowBadgeModal(false)
             flash("✓ Solicitud de badge físico enviada")
           }}
