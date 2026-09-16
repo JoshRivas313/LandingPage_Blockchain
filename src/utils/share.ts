@@ -21,6 +21,21 @@ export function openComposer(text: string): void {
 }
 
 /**
+ * Compositor de LinkedIn con el texto ya escrito.
+ *
+ * `shareActive` + `text` no estan documentados, pero es lo que usan las webs
+ * que abren LinkedIn "con el mensaje listo". Como en X, la imagen no puede
+ * prellenarse y por eso el pase se descarga justo antes.
+ */
+export function openLinkedInComposer(text: string): void {
+  window.open(
+    `https://www.linkedin.com/feed/?shareActive=true&text=${encodeURIComponent(text)}`,
+    "_blank",
+    "noopener,noreferrer",
+  )
+}
+
+/**
  * Copia el texto al portapapeles. Es la red de seguridad por si el prellenado
  * no funciona: entonces basta con pegar.
  *
@@ -70,6 +85,11 @@ export function canShareFile(file: File): boolean {
  */
 export function supportsFileShare(): boolean {
   try {
+    // No basta con que el navegador sepa compartir archivos: Chrome y Edge en
+    // Windows tambien lo soportan, y alli el menu del sistema es peor que
+    // abrir el compositor directamente. Se exige ademas puntero tactil, que es
+    // lo que distingue un movil de un escritorio.
+    if (!window.matchMedia("(pointer: coarse)").matches) return false
     const probe = new File([new Uint8Array([0x89, 0x50, 0x4e, 0x47])], "probe.png", {
       type: "image/png",
     })

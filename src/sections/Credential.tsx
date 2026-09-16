@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState, type CSSProperties } from "react"
 import { PhysicalBadgeModal } from "@/components/PhysicalBadgeModal"
-import { SHARE_TEXT } from "@/constants/site"
+import { LINKEDIN_SHARE_TEXT, SHARE_TEXT } from "@/constants/site"
 import {
   CREDENTIAL,
   canvasToBlob,
@@ -19,6 +19,7 @@ import {
   copyText,
   copyTextEager,
   openComposer,
+  openLinkedInComposer,
   shareFile,
   supportsFileShare,
   toBadgeFile,
@@ -215,10 +216,10 @@ export function Credential() {
   }
 
   /** Escritorio: descargar, copiar y abrir el compositor. */
-  const shareOnDesktop = async () => {
+  const shareOnDesktop = async (open: (text: string) => void, text: string) => {
     downloadBlob(badgeRef.current ?? (await buildBlob()), fileName())
-    const copied = await copyText(SHARE_TEXT)
-    openComposer(SHARE_TEXT)
+    const copied = await copyText(text)
+    open(text)
     flash(copied ? "✓ Pase descargado y texto copiado" : "✓ Pase descargado")
   }
 
@@ -233,13 +234,13 @@ export function Credential() {
    * La copia se lanza sin esperarla a propósito. Un await aquí consumiría la
    * activación del gesto y Safari rechazaría el menú.
    */
-  const shareOnX = async () => {
+  const share = async (open: (text: string) => void, text: string = SHARE_TEXT) => {
     if (busy || !requireInputs()) return
 
     const cached = badgeRef.current
-    if (cached && canShareFile(toBadgeFile(cached))) {
-      const copying = copyTextEager(SHARE_TEXT)
-      const sharing = shareFile(toBadgeFile(cached), SHARE_TEXT)
+    if (nativeShare && cached && canShareFile(toBadgeFile(cached))) {
+      const copying = copyTextEager(text)
+      const sharing = shareFile(toBadgeFile(cached), text)
 
       copying.then((ok) => {
         if (ok) flash("✓ Texto copiado · selecciona dónde compartir")
@@ -258,7 +259,7 @@ export function Credential() {
     setIsGenerated(true)
     try {
       if (nativeShare) setFallback(true)
-      else await shareOnDesktop()
+      else await shareOnDesktop(open, text)
     } catch (err) {
       console.error(err)
       flash("No pudimos preparar tu pase. Inténtalo de nuevo.")
@@ -396,34 +397,51 @@ export function Credential() {
 
             <div className={`bc-cred__actions${isGenerated ? "" : " bc-cred__actions--idle"}`}>
               {/* Compartir es la accion principal; descargar queda de apoyo. */}
-              <button
-                className="bc-cred__share"
-                type="button"
-                onClick={shareOnX}
-                disabled={busy}
-              >
-                {nativeShare ? (
-                  <>
-                    <svg
-                      className="bc-cred__share-icon"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      aria-hidden="true"
-                    >
-                      <path
-                        d="M12 3v13M12 3 8 7M12 3l4 4M5 14v5a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-5"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      />
-                    </svg>
-                    Compartir
-                  </>
-                ) : (
-                  "Compartir en X"
-                )}
-              </button>
+              {nativeShare ? (
+                /* En movil el menu del sistema ya deja elegir X o LinkedIn:
+                   dos botones identicos no aportarian nada. */
+                <button
+                  className="bc-cred__share"
+                  type="button"
+                  onClick={() => share(openComposer)}
+                  disabled={busy}
+                >
+                  <svg
+                    className="bc-cred__share-icon"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    aria-hidden="true"
+                  >
+                    <path
+                      d="M12 3v13M12 3 8 7M12 3l4 4M5 14v5a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-5"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                  Compartir
+                </button>
+              ) : (
+                <>
+                  <button
+                    className="bc-cred__share"
+                    type="button"
+                    onClick={() => share(openComposer)}
+                    disabled={busy}
+                  >
+                    Compartir en X
+                  </button>
+                  <button
+                    className="bc-cred__share bc-cred__share--linkedin"
+                    type="button"
+                    onClick={() => share(openLinkedInComposer, LINKEDIN_SHARE_TEXT)}
+                    disabled={busy}
+                  >
+                    Compartir en LinkedIn
+                  </button>
+                </>
+              )}
               <button
                 className="bc-cred__download"
                 type="button"
